@@ -1,12 +1,92 @@
 consumes:
-- application/app.metacontroller.v1+json
+- application/json
 info:
   description: Webhook API for building Kubernetes controllers
   title: Metacontroller
   version: 0.3.0
-paths: {}
 produces:
-- application/app.metacontroller.v1+json
+- application/json
 schemes:
 - http
 swagger: "2.0"
+
+paths:
+  /sync:
+    post:
+      operationId: syncHook
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          required:
+            - finalizing
+          properties:
+            controller:
+              type: object
+            parent:
+              type: object
+            children:
+              type: object
+            finalizing:
+              type: boolean
+              enum: [false]
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              status:
+                type: object
+              children:
+                type: array
+                items:
+                  type: object
+        default:
+          description: error
+
+  /finalize:
+    post:
+      operationId: finalizeHook
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          required:
+            - finalizing
+          properties:
+            controller:
+              type: object
+            parent:
+              type: object
+            children:
+              type: object
+            finalizing:
+              type: boolean
+              enum: [true]
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              status:
+                type: object
+              children:
+                type: array
+                items:
+                  type: object
+              finalized:
+                type: boolean
+        default:
+          description: error
+# TODO
+# definitions:
+#   controller:
+#     type: object
+#   parent:
+#     type: object
+#   child:
+#     type: object
