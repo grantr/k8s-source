@@ -100,7 +100,7 @@
                   ]
                 },
                 "parent": {
-                  "type": "object"
+                  "$ref": "#/definitions/KubernetesEventSource"
                 }
               }
             }
@@ -119,7 +119,7 @@
                   }
                 },
                 "status": {
-                  "type": "object"
+                  "$ref": "#/definitions/KubernetesEventSourceStatus"
                 }
               }
             }
