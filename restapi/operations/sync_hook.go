@@ -29,6 +29,8 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 	swag "github.com/go-openapi/swag"
 	validate "github.com/go-openapi/validate"
+
+	models "github.com/grantr/k8s-source/models"
 )
 
 // SyncHookHandlerFunc turns a function with the right signature into a sync hook handler
@@ -93,7 +95,7 @@ type SyncHookBody struct {
 	Finalizing *bool `json:"finalizing"`
 
 	// parent
-	Parent interface{} `json:"parent,omitempty"`
+	Parent *models.KubernetesEventSource `json:"parent,omitempty"`
 }
 
 // Validate validates this sync hook body
@@ -101,6 +103,10 @@ func (o *SyncHookBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateFinalizing(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateParent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -144,6 +150,24 @@ func (o *SyncHookBody) validateFinalizing(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *SyncHookBody) validateParent(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Parent) { // not required
+		return nil
+	}
+
+	if o.Parent != nil {
+		if err := o.Parent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "parent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *SyncHookBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -170,7 +194,7 @@ type SyncHookOKBody struct {
 	Children []interface{} `json:"children"`
 
 	// status
-	Status interface{} `json:"status,omitempty"`
+	Status models.KubernetesEventSourceStatus `json:"status,omitempty"`
 }
 
 // Validate validates this sync hook o k body

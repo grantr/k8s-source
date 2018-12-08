@@ -29,6 +29,8 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 	swag "github.com/go-openapi/swag"
 	validate "github.com/go-openapi/validate"
+
+	models "github.com/grantr/k8s-source/models"
 )
 
 // FinalizeHookHandlerFunc turns a function with the right signature into a finalize hook handler
@@ -93,7 +95,7 @@ type FinalizeHookBody struct {
 	Finalizing *bool `json:"finalizing"`
 
 	// parent
-	Parent interface{} `json:"parent,omitempty"`
+	Parent *models.KubernetesEventSource `json:"parent,omitempty"`
 }
 
 // Validate validates this finalize hook body
@@ -101,6 +103,10 @@ func (o *FinalizeHookBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateFinalizing(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateParent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -144,6 +150,24 @@ func (o *FinalizeHookBody) validateFinalizing(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *FinalizeHookBody) validateParent(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Parent) { // not required
+		return nil
+	}
+
+	if o.Parent != nil {
+		if err := o.Parent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "parent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *FinalizeHookBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -173,7 +197,7 @@ type FinalizeHookOKBody struct {
 	Finalized bool `json:"finalized,omitempty"`
 
 	// status
-	Status interface{} `json:"status,omitempty"`
+	Status models.KubernetesEventSourceStatus `json:"status,omitempty"`
 }
 
 // Validate validates this finalize hook o k body
