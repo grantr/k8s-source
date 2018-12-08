@@ -25,7 +25,7 @@ paths:
             controller:
               type: object
             parent:
-              type: object
+              $ref: '#/definitions/KubernetesEventSource'
             children:
               type: object
             finalizing:
@@ -38,7 +38,7 @@ paths:
             type: object
             properties:
               status:
-                type: object
+                $ref: '#/definitions/KubernetesEventSourceStatus'
               children:
                 type: array
                 items:
