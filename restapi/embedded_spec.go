@@ -63,10 +63,13 @@ func init() {
               ],
               "properties": {
                 "children": {
-                  "type": "object"
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/definitions/ContainerSource"
+                  }
                 },
                 "controller": {
-                  "type": "object"
+                  "$ref": "#/definitions/CompositeController"
                 },
                 "finalizing": {
                   "type": "boolean",
@@ -90,7 +93,7 @@ func init() {
                 "children": {
                   "type": "array",
                   "items": {
-                    "type": "object"
+                    "$ref": "#/definitions/ContainerSource"
                   }
                 },
                 "finalized": {
@@ -122,10 +125,13 @@ func init() {
               ],
               "properties": {
                 "children": {
-                  "type": "object"
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/definitions/ContainerSource"
+                  }
                 },
                 "controller": {
-                  "type": "object"
+                  "$ref": "#/definitions/CompositeController"
                 },
                 "finalizing": {
                   "type": "boolean",
@@ -149,7 +155,7 @@ func init() {
                 "children": {
                   "type": "array",
                   "items": {
-                    "type": "object"
+                    "$ref": "#/definitions/ContainerSource"
                   }
                 },
                 "status": {
@@ -166,327 +172,330 @@ func init() {
     }
   },
   "definitions": {
-    "CauseType": {
-      "description": "CauseType is a machine readable value providing more detail about what\noccurred in a status response. An operation may have multiple causes for a\nstatus (whether Failure or Success).",
-      "type": "string",
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
-    },
-    "Initializer": {
+    "CompositeController": {
       "type": "object",
-      "title": "Initializer is information about an initializer that has not yet completed.",
-      "properties": {
-        "name": {
-          "description": "name of the process that is responsible for initializing this object.",
-          "type": "string",
-          "x-go-name": "Name"
+      "allOf": [
+        {
+          "$ref": "#/definitions/Object"
+        },
+        {
+          "properties": {
+            "spec": {
+              "type": "object",
+              "properties": {
+                "childResources": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "apiVersion": {
+                        "type": "string"
+                      },
+                      "resource": {
+                        "type": "string"
+                      },
+                      "updateStrategy": {
+                        "type": "object",
+                        "properties": {
+                          "method": {
+                            "type": "string"
+                          },
+                          "statusChecks": {
+                            "type": "object",
+                            "properties": {
+                              "conditions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "reason": {
+                                      "type": "string"
+                                    },
+                                    "status": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "generateSelector": {
+                  "type": "boolean"
+                },
+                "hooks": {
+                  "type": "object",
+                  "properties": {
+                    "finalize": {
+                      "type": "object",
+                      "properties": {
+                        "webhook": {
+                          "$ref": "#/definitions/Hook"
+                        }
+                      }
+                    },
+                    "sync": {
+                      "type": "object",
+                      "properties": {
+                        "webhook": {
+                          "$ref": "#/definitions/Hook"
+                        }
+                      }
+                    }
+                  }
+                },
+                "parentResource": {
+                  "type": "object",
+                  "properties": {
+                    "apiVersion": {
+                      "type": "string"
+                    },
+                    "resource": {
+                      "type": "string"
+                    },
+                    "revisionHistory": {
+                      "type": "object",
+                      "properties": {
+                        "fieldPaths": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "resyncPeriodSeconds": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
         }
-      },
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
+      ]
     },
-    "Initializers": {
-      "type": "object",
-      "title": "Initializers tracks the progress of initialization.",
-      "properties": {
-        "pending": {
-          "description": "Pending is a list of initializers that must execute in order before this object is visible.\nWhen the last pending initializer is removed, and no failing result is set, the initializers\nstruct will be set to nil and the object is considered as initialized and visible to all\nclients.\n+patchMergeKey=name\n+patchStrategy=merge",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Initializer"
-          },
-          "x-go-name": "Pending"
-        },
-        "result": {
-          "$ref": "#/definitions/Status"
-        }
-      },
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
-    },
-    "KubernetesEventSource": {
-      "description": "KubernetesEventSource is the Schema for the kuberneteseventsources API\n+k8s:openapi-gen=true",
+    "Condition": {
       "type": "object",
       "properties": {
-        "annotations": {
-          "description": "Annotations is an unstructured key value map stored with a resource that may be\nset by external tools to store and retrieve arbitrary metadata. They are not\nqueryable and should be preserved when modifying objects.\nMore info: http://kubernetes.io/docs/user-guide/annotations\n+optional",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "x-go-name": "Annotations"
+        "message": {
+          "type": "string"
         },
-        "apiVersion": {
-          "description": "APIVersion defines the versioned schema of this representation of an object.\nServers should convert recognized schemas to the latest internal value, and\nmay reject unrecognized values.\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources\n+optional",
-          "type": "string",
-          "x-go-name": "APIVersion"
-        },
-        "clusterName": {
-          "description": "The name of the cluster which the object belongs to.\nThis is used to distinguish resources with same name and namespace in different clusters.\nThis field is not set anywhere right now and apiserver is going to ignore it if set in create or update request.\n+optional",
-          "type": "string",
-          "x-go-name": "ClusterName"
-        },
-        "creationTimestamp": {
-          "$ref": "#/definitions/Time"
-        },
-        "deletionGracePeriodSeconds": {
-          "description": "Number of seconds allowed for this object to gracefully terminate before\nit will be removed from the system. Only set when deletionTimestamp is also set.\nMay only be shortened.\nRead-only.\n+optional",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "DeletionGracePeriodSeconds"
-        },
-        "deletionTimestamp": {
-          "$ref": "#/definitions/Time"
-        },
-        "finalizers": {
-          "description": "Must be empty before the object is deleted from the registry. Each entry\nis an identifier for the responsible component that will remove the entry\nfrom the list. If the deletionTimestamp of the object is non-nil, entries\nin this list can only be removed.\n+optional\n+patchStrategy=merge",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-go-name": "Finalizers"
-        },
-        "generateName": {
-          "description": "GenerateName is an optional prefix, used by the server, to generate a unique\nname ONLY IF the Name field has not been provided.\nIf this field is used, the name returned to the client will be different\nthan the name passed. This value will also be combined with a unique suffix.\nThe provided value has the same validation rules as the Name field,\nand may be truncated by the length of the suffix required to make the value\nunique on the server.\n\nIf this field is specified and the generated name exists, the server will\nNOT return a 409 - instead, it will either return 201 Created or 500 with Reason\nServerTimeout indicating a unique name could not be found in the time allotted, and the client\nshould retry (optionally after the time indicated in the Retry-After header).\n\nApplied only if Name is not specified.\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#idempotency\n+optional",
-          "type": "string",
-          "x-go-name": "GenerateName"
-        },
-        "generation": {
-          "description": "A sequence number representing a specific generation of the desired state.\nPopulated by the system. Read-only.\n+optional",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Generation"
-        },
-        "initializers": {
-          "$ref": "#/definitions/Initializers"
-        },
-        "kind": {
-          "description": "Kind is a string value representing the REST resource this object represents.\nServers may infer this from the endpoint the client submits requests to.\nCannot be updated.\nIn CamelCase.\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds\n+optional",
-          "type": "string",
-          "x-go-name": "Kind"
-        },
-        "labels": {
-          "description": "Map of string keys and values that can be used to organize and categorize\n(scope and select) objects. May match selectors of replication controllers\nand services.\nMore info: http://kubernetes.io/docs/user-guide/labels\n+optional",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "x-go-name": "Labels"
-        },
-        "name": {
-          "description": "Name must be unique within a namespace. Is required when creating resources, although\nsome resources may allow a client to request the generation of an appropriate name\nautomatically. Name is primarily intended for creation idempotence and configuration\ndefinition.\nCannot be updated.\nMore info: http://kubernetes.io/docs/user-guide/identifiers#names\n+optional",
-          "type": "string",
-          "x-go-name": "Name"
-        },
-        "namespace": {
-          "description": "Namespace defines the space within each name must be unique. An empty namespace is\nequivalent to the \"default\" namespace, but \"default\" is the canonical representation.\nNot all objects are required to be scoped to a namespace - the value of this field for\nthose objects will be empty.\n\nMust be a DNS_LABEL.\nCannot be updated.\nMore info: http://kubernetes.io/docs/user-guide/namespaces\n+optional",
-          "type": "string",
-          "x-go-name": "Namespace"
-        },
-        "ownerReferences": {
-          "description": "List of objects depended by this object. If ALL objects in the list have\nbeen deleted, this object will be garbage collected. If this object is managed by a controller,\nthen an entry in this list will point to this controller, with the controller field set to true.\nThere cannot be more than one managing controller.\n+optional\n+patchMergeKey=uid\n+patchStrategy=merge",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/OwnerReference"
-          },
-          "x-go-name": "OwnerReferences"
-        },
-        "resourceVersion": {
-          "description": "An opaque value that represents the internal version of this object that can\nbe used by clients to determine when objects have changed. May be used for optimistic\nconcurrency, change detection, and the watch operation on a resource or set of resources.\nClients must treat these values as opaque and passed unmodified back to the server.\nThey may only be valid for a particular resource or set of resources.\n\nPopulated by the system.\nRead-only.\nValue must be treated as opaque by clients and .\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#concurrency-control-and-consistency\n+optional",
-          "type": "string",
-          "x-go-name": "ResourceVersion"
-        },
-        "selfLink": {
-          "description": "SelfLink is a URL representing this object.\nPopulated by the system.\nRead-only.\n+optional",
-          "type": "string",
-          "x-go-name": "SelfLink"
-        },
-        "spec": {
-          "$ref": "#/definitions/KubernetesEventSourceSpec"
+        "reason": {
+          "type": "string"
         },
         "status": {
-          "$ref": "#/definitions/KubernetesEventSourceStatus"
+          "type": "string"
         },
-        "uid": {
-          "$ref": "#/definitions/UID"
+        "type": {
+          "type": "string"
         }
-      },
-      "x-go-package": "github.com/grantr/k8s-source/pkg/apis/sources/v1alpha1"
+      }
+    },
+    "ContainerSource": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Object"
+        },
+        {
+          "properties": {
+            "spec": {
+              "$ref": "#/definitions/ContainerSourceSpec"
+            },
+            "status": {
+              "$ref": "#/definitions/ContainerSourceStatus"
+            }
+          }
+        }
+      ]
+    },
+    "ContainerSourceSpec": {
+      "type": "object",
+      "properties": {
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "env": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EnvVar"
+          }
+        },
+        "image": {
+          "type": "string"
+        },
+        "serviceAccountName": {
+          "type": "string"
+        },
+        "sink": {
+          "$ref": "#/definitions/ObjectReference"
+        }
+      }
+    },
+    "ContainerSourceStatus": {
+      "type": "object",
+      "properties": {
+        "conditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Condition"
+          }
+        },
+        "sinkURI": {
+          "type": "string"
+        }
+      }
+    },
+    "EnvVar": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "Hook": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "service": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "namespace": {
+              "type": "string"
+            },
+            "port": {
+              "type": "integer"
+            },
+            "protocol": {
+              "type": "string"
+            }
+          }
+        },
+        "timeout": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "KubernetesEventSource": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Object"
+        },
+        {
+          "properties": {
+            "spec": {
+              "$ref": "#/definitions/KubernetesEventSourceSpec"
+            },
+            "status": {
+              "$ref": "#/definitions/KubernetesEventSourceStatus"
+            }
+          }
+        }
+      ]
     },
     "KubernetesEventSourceSpec": {
       "type": "object",
       "properties": {
-        "foo": {
-          "type": "string",
-          "x-go-name": "Foo"
+        "namespace": {
+          "type": "string"
+        },
+        "serviceAccountName": {
+          "type": "string"
+        },
+        "sink": {
+          "$ref": "#/definitions/ObjectReference"
         }
-      },
-      "x-go-package": "github.com/grantr/k8s-source/pkg/apis/sources/v1alpha1"
+      }
     },
     "KubernetesEventSourceStatus": {
       "type": "object",
-      "x-go-package": "github.com/grantr/k8s-source/pkg/apis/sources/v1alpha1"
-    },
-    "OwnerReference": {
-      "description": "OwnerReference contains enough information to let you identify an owning\nobject. An owning object must be in the same namespace as the dependent, or\nbe cluster-scoped, so there is no namespace field.",
-      "type": "object",
       "properties": {
-        "apiVersion": {
-          "description": "API version of the referent.",
-          "type": "string",
-          "x-go-name": "APIVersion"
-        },
-        "blockOwnerDeletion": {
-          "description": "If true, AND if the owner has the \"foregroundDeletion\" finalizer, then\nthe owner cannot be deleted from the key-value store until this\nreference is removed.\nDefaults to false.\nTo set this field, a user needs \"delete\" permission of the owner,\notherwise 422 (Unprocessable Entity) will be returned.\n+optional",
-          "type": "boolean",
-          "x-go-name": "BlockOwnerDeletion"
-        },
-        "controller": {
-          "description": "If true, this reference points to the managing controller.\n+optional",
-          "type": "boolean",
-          "x-go-name": "Controller"
-        },
-        "kind": {
-          "description": "Kind of the referent.\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
-          "type": "string",
-          "x-go-name": "Kind"
-        },
-        "name": {
-          "description": "Name of the referent.\nMore info: http://kubernetes.io/docs/user-guide/identifiers#names",
-          "type": "string",
-          "x-go-name": "Name"
-        },
-        "uid": {
-          "$ref": "#/definitions/UID"
-        }
-      },
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
-    },
-    "Status": {
-      "type": "object",
-      "title": "Status is a return value for calls that don't return other objects.",
-      "properties": {
-        "apiVersion": {
-          "description": "APIVersion defines the versioned schema of this representation of an object.\nServers should convert recognized schemas to the latest internal value, and\nmay reject unrecognized values.\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources\n+optional",
-          "type": "string",
-          "x-go-name": "APIVersion"
-        },
-        "code": {
-          "description": "Suggested HTTP return code for this status, 0 if not set.\n+optional",
-          "type": "integer",
-          "format": "int32",
-          "x-go-name": "Code"
-        },
-        "continue": {
-          "description": "continue may be set if the user set a limit on the number of items returned, and indicates that\nthe server has more data available. The value is opaque and may be used to issue another request\nto the endpoint that served this list to retrieve the next set of available objects. Continuing a\nconsistent list may not be possible if the server configuration has changed or more than a few\nminutes have passed. The resourceVersion field returned when using this continue value will be\nidentical to the value in the first response, unless you have received this token from an error\nmessage.",
-          "type": "string",
-          "x-go-name": "Continue"
-        },
-        "details": {
-          "$ref": "#/definitions/StatusDetails"
-        },
-        "kind": {
-          "description": "Kind is a string value representing the REST resource this object represents.\nServers may infer this from the endpoint the client submits requests to.\nCannot be updated.\nIn CamelCase.\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds\n+optional",
-          "type": "string",
-          "x-go-name": "Kind"
-        },
-        "message": {
-          "description": "A human-readable description of the status of this operation.\n+optional",
-          "type": "string",
-          "x-go-name": "Message"
-        },
-        "reason": {
-          "$ref": "#/definitions/StatusReason"
-        },
-        "resourceVersion": {
-          "description": "String that identifies the server's internal version of this object that\ncan be used by clients to determine when objects have changed.\nValue must be treated as opaque by clients and passed unmodified back to the server.\nPopulated by the system.\nRead-only.\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#concurrency-control-and-consistency\n+optional",
-          "type": "string",
-          "x-go-name": "ResourceVersion"
-        },
-        "selfLink": {
-          "description": "selfLink is a URL representing this object.\nPopulated by the system.\nRead-only.\n+optional",
-          "type": "string",
-          "x-go-name": "SelfLink"
-        },
-        "status": {
-          "description": "Status of the operation.\nOne of: \"Success\" or \"Failure\".\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status\n+optional",
-          "type": "string",
-          "x-go-name": "Status"
-        }
-      },
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
-    },
-    "StatusCause": {
-      "description": "StatusCause provides more information about an api.Status failure, including\ncases when multiple errors are encountered.",
-      "type": "object",
-      "properties": {
-        "field": {
-          "description": "The field of the resource that has caused this error, as named by its JSON\nserialization. May include dot and postfix notation for nested attributes.\nArrays are zero-indexed.  Fields may appear more than once in an array of\ncauses due to fields having multiple errors.\nOptional.\n\nExamples:\n\"name\" - the field \"name\" on the current resource\n\"items[0].name\" - the field \"name\" on the first array entry in \"items\"\n+optional",
-          "type": "string",
-          "x-go-name": "Field"
-        },
-        "message": {
-          "description": "A human-readable description of the cause of the error.  This field may be\npresented as-is to a reader.\n+optional",
-          "type": "string",
-          "x-go-name": "Message"
-        },
-        "reason": {
-          "$ref": "#/definitions/CauseType"
-        }
-      },
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
-    },
-    "StatusDetails": {
-      "description": "StatusDetails is a set of additional properties that MAY be set by the\nserver to provide additional information about a response. The Reason\nfield of a Status object defines what attributes will be set. Clients\nmust ignore fields that do not match the defined type of each attribute,\nand should assume that any attribute may be empty, invalid, or under\ndefined.",
-      "type": "object",
-      "properties": {
-        "causes": {
-          "description": "The Causes array includes more details associated with the StatusReason\nfailure. Not all StatusReasons may provide detailed causes.\n+optional",
+        "conditions": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/StatusCause"
-          },
-          "x-go-name": "Causes"
+            "$ref": "#/definitions/Condition"
+          }
         },
-        "group": {
-          "description": "The group attribute of the resource associated with the status StatusReason.\n+optional",
-          "type": "string",
-          "x-go-name": "Group"
+        "sinkURI": {
+          "type": "string"
+        }
+      }
+    },
+    "Object": {
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string"
         },
         "kind": {
-          "description": "The kind attribute of the resource associated with the status StatusReason.\nOn some operations may differ from the requested resource Kind.\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds\n+optional",
-          "type": "string",
-          "x-go-name": "Kind"
+          "type": "string"
         },
-        "name": {
-          "description": "The name attribute of the resource associated with the status StatusReason\n(when there is a single name which can be described).\n+optional",
-          "type": "string",
-          "x-go-name": "Name"
-        },
-        "retryAfterSeconds": {
-          "description": "If specified, the time in seconds before the operation should be retried. Some errors may indicate\nthe client must take an alternate action - for those errors this field may indicate how long to wait\nbefore taking the alternate action.\n+optional",
-          "type": "integer",
-          "format": "int32",
-          "x-go-name": "RetryAfterSeconds"
-        },
-        "uid": {
-          "$ref": "#/definitions/UID"
+        "metadata": {
+          "$ref": "#/definitions/ObjectMeta"
         }
       },
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
+      "discriminator": "kind"
     },
-    "StatusReason": {
-      "description": "StatusReason is an enumeration of possible failure causes.  Each StatusReason\nmust map to a single HTTP status code, but multiple reasons may map\nto the same HTTP status code.\nTODO: move to apiserver",
-      "type": "string",
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
-    },
-    "Time": {
-      "description": "+protobuf.options.marshal=false\n+protobuf.as=Timestamp\n+protobuf.options.(gogoproto.goproto_stringer)=false",
+    "ObjectMeta": {
       "type": "object",
-      "title": "Time is a wrapper around time.Time which supports correct\nmarshaling to YAML and JSON.  Wrappers are provided for many\nof the factory methods that the time package offers.",
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        }
+      }
     },
-    "UID": {
-      "description": "UID is a type that holds unique ID values, including UUIDs.  Because we\ndon't ONLY use UUIDs, this is an alias to string.  Being a type captures\nintent and helps make sure that UIDs and names do not get conflated.",
-      "type": "string",
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/types"
+    "ObjectReference": {
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string"
+        },
+        "fieldPath": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "resourceVersion": {
+          "type": "string"
+        },
+        "uid": {
+          "type": "string"
+        }
+      }
     }
   }
 }`))
@@ -521,10 +530,13 @@ func init() {
               ],
               "properties": {
                 "children": {
-                  "type": "object"
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/definitions/ContainerSource"
+                  }
                 },
                 "controller": {
-                  "type": "object"
+                  "$ref": "#/definitions/CompositeController"
                 },
                 "finalizing": {
                   "type": "boolean",
@@ -548,7 +560,7 @@ func init() {
                 "children": {
                   "type": "array",
                   "items": {
-                    "type": "object"
+                    "$ref": "#/definitions/ContainerSource"
                   }
                 },
                 "finalized": {
@@ -580,10 +592,13 @@ func init() {
               ],
               "properties": {
                 "children": {
-                  "type": "object"
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/definitions/ContainerSource"
+                  }
                 },
                 "controller": {
-                  "type": "object"
+                  "$ref": "#/definitions/CompositeController"
                 },
                 "finalizing": {
                   "type": "boolean",
@@ -607,7 +622,7 @@ func init() {
                 "children": {
                   "type": "array",
                   "items": {
-                    "type": "object"
+                    "$ref": "#/definitions/ContainerSource"
                   }
                 },
                 "status": {
@@ -624,327 +639,330 @@ func init() {
     }
   },
   "definitions": {
-    "CauseType": {
-      "description": "CauseType is a machine readable value providing more detail about what\noccurred in a status response. An operation may have multiple causes for a\nstatus (whether Failure or Success).",
-      "type": "string",
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
-    },
-    "Initializer": {
+    "CompositeController": {
       "type": "object",
-      "title": "Initializer is information about an initializer that has not yet completed.",
-      "properties": {
-        "name": {
-          "description": "name of the process that is responsible for initializing this object.",
-          "type": "string",
-          "x-go-name": "Name"
+      "allOf": [
+        {
+          "$ref": "#/definitions/Object"
+        },
+        {
+          "properties": {
+            "spec": {
+              "type": "object",
+              "properties": {
+                "childResources": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "apiVersion": {
+                        "type": "string"
+                      },
+                      "resource": {
+                        "type": "string"
+                      },
+                      "updateStrategy": {
+                        "type": "object",
+                        "properties": {
+                          "method": {
+                            "type": "string"
+                          },
+                          "statusChecks": {
+                            "type": "object",
+                            "properties": {
+                              "conditions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "reason": {
+                                      "type": "string"
+                                    },
+                                    "status": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "generateSelector": {
+                  "type": "boolean"
+                },
+                "hooks": {
+                  "type": "object",
+                  "properties": {
+                    "finalize": {
+                      "type": "object",
+                      "properties": {
+                        "webhook": {
+                          "$ref": "#/definitions/Hook"
+                        }
+                      }
+                    },
+                    "sync": {
+                      "type": "object",
+                      "properties": {
+                        "webhook": {
+                          "$ref": "#/definitions/Hook"
+                        }
+                      }
+                    }
+                  }
+                },
+                "parentResource": {
+                  "type": "object",
+                  "properties": {
+                    "apiVersion": {
+                      "type": "string"
+                    },
+                    "resource": {
+                      "type": "string"
+                    },
+                    "revisionHistory": {
+                      "type": "object",
+                      "properties": {
+                        "fieldPaths": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "resyncPeriodSeconds": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
         }
-      },
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
+      ]
     },
-    "Initializers": {
-      "type": "object",
-      "title": "Initializers tracks the progress of initialization.",
-      "properties": {
-        "pending": {
-          "description": "Pending is a list of initializers that must execute in order before this object is visible.\nWhen the last pending initializer is removed, and no failing result is set, the initializers\nstruct will be set to nil and the object is considered as initialized and visible to all\nclients.\n+patchMergeKey=name\n+patchStrategy=merge",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Initializer"
-          },
-          "x-go-name": "Pending"
-        },
-        "result": {
-          "$ref": "#/definitions/Status"
-        }
-      },
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
-    },
-    "KubernetesEventSource": {
-      "description": "KubernetesEventSource is the Schema for the kuberneteseventsources API\n+k8s:openapi-gen=true",
+    "Condition": {
       "type": "object",
       "properties": {
-        "annotations": {
-          "description": "Annotations is an unstructured key value map stored with a resource that may be\nset by external tools to store and retrieve arbitrary metadata. They are not\nqueryable and should be preserved when modifying objects.\nMore info: http://kubernetes.io/docs/user-guide/annotations\n+optional",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "x-go-name": "Annotations"
+        "message": {
+          "type": "string"
         },
-        "apiVersion": {
-          "description": "APIVersion defines the versioned schema of this representation of an object.\nServers should convert recognized schemas to the latest internal value, and\nmay reject unrecognized values.\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources\n+optional",
-          "type": "string",
-          "x-go-name": "APIVersion"
-        },
-        "clusterName": {
-          "description": "The name of the cluster which the object belongs to.\nThis is used to distinguish resources with same name and namespace in different clusters.\nThis field is not set anywhere right now and apiserver is going to ignore it if set in create or update request.\n+optional",
-          "type": "string",
-          "x-go-name": "ClusterName"
-        },
-        "creationTimestamp": {
-          "$ref": "#/definitions/Time"
-        },
-        "deletionGracePeriodSeconds": {
-          "description": "Number of seconds allowed for this object to gracefully terminate before\nit will be removed from the system. Only set when deletionTimestamp is also set.\nMay only be shortened.\nRead-only.\n+optional",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "DeletionGracePeriodSeconds"
-        },
-        "deletionTimestamp": {
-          "$ref": "#/definitions/Time"
-        },
-        "finalizers": {
-          "description": "Must be empty before the object is deleted from the registry. Each entry\nis an identifier for the responsible component that will remove the entry\nfrom the list. If the deletionTimestamp of the object is non-nil, entries\nin this list can only be removed.\n+optional\n+patchStrategy=merge",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-go-name": "Finalizers"
-        },
-        "generateName": {
-          "description": "GenerateName is an optional prefix, used by the server, to generate a unique\nname ONLY IF the Name field has not been provided.\nIf this field is used, the name returned to the client will be different\nthan the name passed. This value will also be combined with a unique suffix.\nThe provided value has the same validation rules as the Name field,\nand may be truncated by the length of the suffix required to make the value\nunique on the server.\n\nIf this field is specified and the generated name exists, the server will\nNOT return a 409 - instead, it will either return 201 Created or 500 with Reason\nServerTimeout indicating a unique name could not be found in the time allotted, and the client\nshould retry (optionally after the time indicated in the Retry-After header).\n\nApplied only if Name is not specified.\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#idempotency\n+optional",
-          "type": "string",
-          "x-go-name": "GenerateName"
-        },
-        "generation": {
-          "description": "A sequence number representing a specific generation of the desired state.\nPopulated by the system. Read-only.\n+optional",
-          "type": "integer",
-          "format": "int64",
-          "x-go-name": "Generation"
-        },
-        "initializers": {
-          "$ref": "#/definitions/Initializers"
-        },
-        "kind": {
-          "description": "Kind is a string value representing the REST resource this object represents.\nServers may infer this from the endpoint the client submits requests to.\nCannot be updated.\nIn CamelCase.\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds\n+optional",
-          "type": "string",
-          "x-go-name": "Kind"
-        },
-        "labels": {
-          "description": "Map of string keys and values that can be used to organize and categorize\n(scope and select) objects. May match selectors of replication controllers\nand services.\nMore info: http://kubernetes.io/docs/user-guide/labels\n+optional",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "x-go-name": "Labels"
-        },
-        "name": {
-          "description": "Name must be unique within a namespace. Is required when creating resources, although\nsome resources may allow a client to request the generation of an appropriate name\nautomatically. Name is primarily intended for creation idempotence and configuration\ndefinition.\nCannot be updated.\nMore info: http://kubernetes.io/docs/user-guide/identifiers#names\n+optional",
-          "type": "string",
-          "x-go-name": "Name"
-        },
-        "namespace": {
-          "description": "Namespace defines the space within each name must be unique. An empty namespace is\nequivalent to the \"default\" namespace, but \"default\" is the canonical representation.\nNot all objects are required to be scoped to a namespace - the value of this field for\nthose objects will be empty.\n\nMust be a DNS_LABEL.\nCannot be updated.\nMore info: http://kubernetes.io/docs/user-guide/namespaces\n+optional",
-          "type": "string",
-          "x-go-name": "Namespace"
-        },
-        "ownerReferences": {
-          "description": "List of objects depended by this object. If ALL objects in the list have\nbeen deleted, this object will be garbage collected. If this object is managed by a controller,\nthen an entry in this list will point to this controller, with the controller field set to true.\nThere cannot be more than one managing controller.\n+optional\n+patchMergeKey=uid\n+patchStrategy=merge",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/OwnerReference"
-          },
-          "x-go-name": "OwnerReferences"
-        },
-        "resourceVersion": {
-          "description": "An opaque value that represents the internal version of this object that can\nbe used by clients to determine when objects have changed. May be used for optimistic\nconcurrency, change detection, and the watch operation on a resource or set of resources.\nClients must treat these values as opaque and passed unmodified back to the server.\nThey may only be valid for a particular resource or set of resources.\n\nPopulated by the system.\nRead-only.\nValue must be treated as opaque by clients and .\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#concurrency-control-and-consistency\n+optional",
-          "type": "string",
-          "x-go-name": "ResourceVersion"
-        },
-        "selfLink": {
-          "description": "SelfLink is a URL representing this object.\nPopulated by the system.\nRead-only.\n+optional",
-          "type": "string",
-          "x-go-name": "SelfLink"
-        },
-        "spec": {
-          "$ref": "#/definitions/KubernetesEventSourceSpec"
+        "reason": {
+          "type": "string"
         },
         "status": {
-          "$ref": "#/definitions/KubernetesEventSourceStatus"
+          "type": "string"
         },
-        "uid": {
-          "$ref": "#/definitions/UID"
+        "type": {
+          "type": "string"
         }
-      },
-      "x-go-package": "github.com/grantr/k8s-source/pkg/apis/sources/v1alpha1"
+      }
+    },
+    "ContainerSource": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Object"
+        },
+        {
+          "properties": {
+            "spec": {
+              "$ref": "#/definitions/ContainerSourceSpec"
+            },
+            "status": {
+              "$ref": "#/definitions/ContainerSourceStatus"
+            }
+          }
+        }
+      ]
+    },
+    "ContainerSourceSpec": {
+      "type": "object",
+      "properties": {
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "env": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EnvVar"
+          }
+        },
+        "image": {
+          "type": "string"
+        },
+        "serviceAccountName": {
+          "type": "string"
+        },
+        "sink": {
+          "$ref": "#/definitions/ObjectReference"
+        }
+      }
+    },
+    "ContainerSourceStatus": {
+      "type": "object",
+      "properties": {
+        "conditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Condition"
+          }
+        },
+        "sinkURI": {
+          "type": "string"
+        }
+      }
+    },
+    "EnvVar": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "Hook": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "service": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "namespace": {
+              "type": "string"
+            },
+            "port": {
+              "type": "integer"
+            },
+            "protocol": {
+              "type": "string"
+            }
+          }
+        },
+        "timeout": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "KubernetesEventSource": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Object"
+        },
+        {
+          "properties": {
+            "spec": {
+              "$ref": "#/definitions/KubernetesEventSourceSpec"
+            },
+            "status": {
+              "$ref": "#/definitions/KubernetesEventSourceStatus"
+            }
+          }
+        }
+      ]
     },
     "KubernetesEventSourceSpec": {
       "type": "object",
       "properties": {
-        "foo": {
-          "type": "string",
-          "x-go-name": "Foo"
+        "namespace": {
+          "type": "string"
+        },
+        "serviceAccountName": {
+          "type": "string"
+        },
+        "sink": {
+          "$ref": "#/definitions/ObjectReference"
         }
-      },
-      "x-go-package": "github.com/grantr/k8s-source/pkg/apis/sources/v1alpha1"
+      }
     },
     "KubernetesEventSourceStatus": {
       "type": "object",
-      "x-go-package": "github.com/grantr/k8s-source/pkg/apis/sources/v1alpha1"
-    },
-    "OwnerReference": {
-      "description": "OwnerReference contains enough information to let you identify an owning\nobject. An owning object must be in the same namespace as the dependent, or\nbe cluster-scoped, so there is no namespace field.",
-      "type": "object",
       "properties": {
-        "apiVersion": {
-          "description": "API version of the referent.",
-          "type": "string",
-          "x-go-name": "APIVersion"
-        },
-        "blockOwnerDeletion": {
-          "description": "If true, AND if the owner has the \"foregroundDeletion\" finalizer, then\nthe owner cannot be deleted from the key-value store until this\nreference is removed.\nDefaults to false.\nTo set this field, a user needs \"delete\" permission of the owner,\notherwise 422 (Unprocessable Entity) will be returned.\n+optional",
-          "type": "boolean",
-          "x-go-name": "BlockOwnerDeletion"
-        },
-        "controller": {
-          "description": "If true, this reference points to the managing controller.\n+optional",
-          "type": "boolean",
-          "x-go-name": "Controller"
-        },
-        "kind": {
-          "description": "Kind of the referent.\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds",
-          "type": "string",
-          "x-go-name": "Kind"
-        },
-        "name": {
-          "description": "Name of the referent.\nMore info: http://kubernetes.io/docs/user-guide/identifiers#names",
-          "type": "string",
-          "x-go-name": "Name"
-        },
-        "uid": {
-          "$ref": "#/definitions/UID"
-        }
-      },
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
-    },
-    "Status": {
-      "type": "object",
-      "title": "Status is a return value for calls that don't return other objects.",
-      "properties": {
-        "apiVersion": {
-          "description": "APIVersion defines the versioned schema of this representation of an object.\nServers should convert recognized schemas to the latest internal value, and\nmay reject unrecognized values.\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources\n+optional",
-          "type": "string",
-          "x-go-name": "APIVersion"
-        },
-        "code": {
-          "description": "Suggested HTTP return code for this status, 0 if not set.\n+optional",
-          "type": "integer",
-          "format": "int32",
-          "x-go-name": "Code"
-        },
-        "continue": {
-          "description": "continue may be set if the user set a limit on the number of items returned, and indicates that\nthe server has more data available. The value is opaque and may be used to issue another request\nto the endpoint that served this list to retrieve the next set of available objects. Continuing a\nconsistent list may not be possible if the server configuration has changed or more than a few\nminutes have passed. The resourceVersion field returned when using this continue value will be\nidentical to the value in the first response, unless you have received this token from an error\nmessage.",
-          "type": "string",
-          "x-go-name": "Continue"
-        },
-        "details": {
-          "$ref": "#/definitions/StatusDetails"
-        },
-        "kind": {
-          "description": "Kind is a string value representing the REST resource this object represents.\nServers may infer this from the endpoint the client submits requests to.\nCannot be updated.\nIn CamelCase.\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds\n+optional",
-          "type": "string",
-          "x-go-name": "Kind"
-        },
-        "message": {
-          "description": "A human-readable description of the status of this operation.\n+optional",
-          "type": "string",
-          "x-go-name": "Message"
-        },
-        "reason": {
-          "$ref": "#/definitions/StatusReason"
-        },
-        "resourceVersion": {
-          "description": "String that identifies the server's internal version of this object that\ncan be used by clients to determine when objects have changed.\nValue must be treated as opaque by clients and passed unmodified back to the server.\nPopulated by the system.\nRead-only.\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#concurrency-control-and-consistency\n+optional",
-          "type": "string",
-          "x-go-name": "ResourceVersion"
-        },
-        "selfLink": {
-          "description": "selfLink is a URL representing this object.\nPopulated by the system.\nRead-only.\n+optional",
-          "type": "string",
-          "x-go-name": "SelfLink"
-        },
-        "status": {
-          "description": "Status of the operation.\nOne of: \"Success\" or \"Failure\".\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#spec-and-status\n+optional",
-          "type": "string",
-          "x-go-name": "Status"
-        }
-      },
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
-    },
-    "StatusCause": {
-      "description": "StatusCause provides more information about an api.Status failure, including\ncases when multiple errors are encountered.",
-      "type": "object",
-      "properties": {
-        "field": {
-          "description": "The field of the resource that has caused this error, as named by its JSON\nserialization. May include dot and postfix notation for nested attributes.\nArrays are zero-indexed.  Fields may appear more than once in an array of\ncauses due to fields having multiple errors.\nOptional.\n\nExamples:\n\"name\" - the field \"name\" on the current resource\n\"items[0].name\" - the field \"name\" on the first array entry in \"items\"\n+optional",
-          "type": "string",
-          "x-go-name": "Field"
-        },
-        "message": {
-          "description": "A human-readable description of the cause of the error.  This field may be\npresented as-is to a reader.\n+optional",
-          "type": "string",
-          "x-go-name": "Message"
-        },
-        "reason": {
-          "$ref": "#/definitions/CauseType"
-        }
-      },
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
-    },
-    "StatusDetails": {
-      "description": "StatusDetails is a set of additional properties that MAY be set by the\nserver to provide additional information about a response. The Reason\nfield of a Status object defines what attributes will be set. Clients\nmust ignore fields that do not match the defined type of each attribute,\nand should assume that any attribute may be empty, invalid, or under\ndefined.",
-      "type": "object",
-      "properties": {
-        "causes": {
-          "description": "The Causes array includes more details associated with the StatusReason\nfailure. Not all StatusReasons may provide detailed causes.\n+optional",
+        "conditions": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/StatusCause"
-          },
-          "x-go-name": "Causes"
+            "$ref": "#/definitions/Condition"
+          }
         },
-        "group": {
-          "description": "The group attribute of the resource associated with the status StatusReason.\n+optional",
-          "type": "string",
-          "x-go-name": "Group"
+        "sinkURI": {
+          "type": "string"
+        }
+      }
+    },
+    "Object": {
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string"
         },
         "kind": {
-          "description": "The kind attribute of the resource associated with the status StatusReason.\nOn some operations may differ from the requested resource Kind.\nMore info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds\n+optional",
-          "type": "string",
-          "x-go-name": "Kind"
+          "type": "string"
         },
-        "name": {
-          "description": "The name attribute of the resource associated with the status StatusReason\n(when there is a single name which can be described).\n+optional",
-          "type": "string",
-          "x-go-name": "Name"
-        },
-        "retryAfterSeconds": {
-          "description": "If specified, the time in seconds before the operation should be retried. Some errors may indicate\nthe client must take an alternate action - for those errors this field may indicate how long to wait\nbefore taking the alternate action.\n+optional",
-          "type": "integer",
-          "format": "int32",
-          "x-go-name": "RetryAfterSeconds"
-        },
-        "uid": {
-          "$ref": "#/definitions/UID"
+        "metadata": {
+          "$ref": "#/definitions/ObjectMeta"
         }
       },
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
+      "discriminator": "kind"
     },
-    "StatusReason": {
-      "description": "StatusReason is an enumeration of possible failure causes.  Each StatusReason\nmust map to a single HTTP status code, but multiple reasons may map\nto the same HTTP status code.\nTODO: move to apiserver",
-      "type": "string",
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
-    },
-    "Time": {
-      "description": "+protobuf.options.marshal=false\n+protobuf.as=Timestamp\n+protobuf.options.(gogoproto.goproto_stringer)=false",
+    "ObjectMeta": {
       "type": "object",
-      "title": "Time is a wrapper around time.Time which supports correct\nmarshaling to YAML and JSON.  Wrappers are provided for many\nof the factory methods that the time package offers.",
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/apis/meta/v1"
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        }
+      }
     },
-    "UID": {
-      "description": "UID is a type that holds unique ID values, including UUIDs.  Because we\ndon't ONLY use UUIDs, this is an alias to string.  Being a type captures\nintent and helps make sure that UIDs and names do not get conflated.",
-      "type": "string",
-      "x-go-package": "github.com/grantr/k8s-source/vendor/k8s.io/apimachinery/pkg/types"
+    "ObjectReference": {
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string"
+        },
+        "fieldPath": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "resourceVersion": {
+          "type": "string"
+        },
+        "uid": {
+          "type": "string"
+        }
+      }
     }
   }
 }`))

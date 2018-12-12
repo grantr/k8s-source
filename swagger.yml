@@ -1,0 +1,290 @@
+consumes:
+- application/json
+produces:
+- application/json
+schemes:
+- http
+swagger: "2.0"
+info:
+  description: Webhook API for building Kubernetes controllers
+  title: Metacontroller
+  version: 0.3.0
+paths:
+  /finalize:
+    post:
+      operationId: finalizeHook
+      parameters:
+      - name: body
+        in: body
+        schema:
+          type: object
+          required:
+          - finalizing
+          properties:
+            children:
+              type: object
+              additionalProperties:
+                $ref: '#/definitions/ContainerSource'
+            controller:
+              $ref: '#/definitions/CompositeController'
+            finalizing:
+              type: boolean
+              enum:
+              - true
+            parent:
+              $ref: '#/definitions/KubernetesEventSource'
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+            properties:
+              children:
+                type: array
+                items:
+                  $ref: '#/definitions/ContainerSource'
+              finalized:
+                type: boolean
+              status:
+                $ref: '#/definitions/KubernetesEventSourceStatus'
+        default:
+          description: error
+  /sync:
+    post:
+      operationId: syncHook
+      parameters:
+      - name: body
+        in: body
+        schema:
+          type: object
+          required:
+          - finalizing
+          properties:
+            children:
+              type: object
+              additionalProperties:
+                $ref: '#/definitions/ContainerSource'
+            controller:
+              $ref: '#/definitions/CompositeController'
+            finalizing:
+              type: boolean
+              enum:
+              - false
+            parent:
+              $ref: '#/definitions/KubernetesEventSource'
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+            properties:
+              children:
+                type: array
+                items:
+                  $ref: '#/definitions/ContainerSource'
+              status:
+                $ref: '#/definitions/KubernetesEventSourceStatus'
+        default:
+          description: error
+definitions:
+  CompositeController:
+    type: object
+    allOf:
+    - $ref: '#/definitions/Object'
+    - properties:
+        spec:
+          type: object
+          properties:
+            childResources:
+              type: array
+              items:
+                type: object
+                properties:
+                  apiVersion:
+                    type: string
+                  resource:
+                    type: string
+                  updateStrategy:
+                    type: object
+                    properties:
+                      method:
+                        type: string
+                      statusChecks:
+                        type: object
+                        properties:
+                          conditions:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                reason:
+                                  type: string
+                                status:
+                                  type: string
+                                type:
+                                  type: string
+            generateSelector:
+              type: boolean
+            hooks:
+              type: object
+              properties:
+                finalize:
+                  type: object
+                  properties:
+                    webhook:
+                      $ref: '#/definitions/Hook'
+                sync:
+                  type: object
+                  properties:
+                    webhook:
+                      $ref: '#/definitions/Hook'
+            parentResource:
+              type: object
+              properties:
+                apiVersion:
+                  type: string
+                resource:
+                  type: string
+                revisionHistory:
+                  type: object
+                  properties:
+                    fieldPaths:
+                      type: array
+                      items:
+                        type: string
+            resyncPeriodSeconds:
+              type: integer
+  Condition:
+    type: object
+    properties:
+      message:
+        type: string
+      reason:
+        type: string
+      status:
+        type: string
+      type:
+        type: string
+  ContainerSource:
+    type: object
+    allOf:
+    - $ref: '#/definitions/Object'
+    - properties:
+        spec:
+          $ref: '#/definitions/ContainerSourceSpec'
+        status:
+          $ref: '#/definitions/ContainerSourceStatus'
+  ContainerSourceSpec:
+    type: object
+    properties:
+      args:
+        type: array
+        items:
+          type: string
+      env:
+        type: array
+        items:
+          $ref: '#/definitions/EnvVar'
+      image:
+        type: string
+      serviceAccountName:
+        type: string
+      sink:
+        $ref: '#/definitions/ObjectReference'
+  ContainerSourceStatus:
+    type: object
+    properties:
+      conditions:
+        type: array
+        items:
+          $ref: '#/definitions/Condition'
+      sinkURI:
+        type: string
+  EnvVar:
+    type: object
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+  Hook:
+    type: object
+    properties:
+      path:
+        type: string
+      service:
+        type: object
+        properties:
+          name:
+            type: string
+          namespace:
+            type: string
+          port:
+            type: integer
+          protocol:
+            type: string
+      timeout:
+        type: string
+      url:
+        type: string
+  KubernetesEventSource:
+    type: object
+    allOf:
+    - $ref: '#/definitions/Object'
+    - properties:
+        spec:
+          $ref: '#/definitions/KubernetesEventSourceSpec'
+        status:
+          $ref: '#/definitions/KubernetesEventSourceStatus'
+  KubernetesEventSourceSpec:
+    type: object
+    properties:
+      namespace:
+        type: string
+      serviceAccountName:
+        type: string
+      sink:
+        $ref: '#/definitions/ObjectReference'
+  KubernetesEventSourceStatus:
+    type: object
+    properties:
+      conditions:
+        type: array
+        items:
+          $ref: '#/definitions/Condition'
+      sinkURI:
+        type: string
+  Object:
+    type: object
+    properties:
+      apiVersion:
+        type: string
+      kind:
+        type: string
+      metadata:
+        $ref: '#/definitions/ObjectMeta'
+    discriminator: kind
+  ObjectMeta:
+    type: object
+    properties:
+      name:
+        type: string
+      namespace:
+        type: string
+  ObjectReference:
+    type: object
+    properties:
+      apiVersion:
+        type: string
+      fieldPath:
+        type: string
+      kind:
+        type: string
+      name:
+        type: string
+      namespace:
+        type: string
+      resourceVersion:
+        type: string
+      uid:
+        type: string

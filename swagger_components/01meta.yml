@@ -1,0 +1,11 @@
+swagger: "2.0"
+consumes:
+- application/json
+info:
+  description: Webhook API for building Kubernetes controllers
+  title: Metacontroller
+  version: 0.3.0
+produces:
+- application/json
+schemes:
+- http

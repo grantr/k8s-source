@@ -1,0 +1,88 @@
+definitions:
+  Hook:
+    type: object
+    properties:
+      url:
+        type: string
+      timeout:
+        type: string
+      path:
+        type: string
+      service:
+        type: object
+        properties:
+          name:
+            type: string
+          namespace:
+            type: string
+          port:
+            type: integer
+          protocol:
+            type: string
+  CompositeController:
+    type: object
+    allOf:
+    - $ref: "#/definitions/Object"
+    - properties:
+        spec:
+          type: object
+          properties:
+            parentResource:
+              type: object
+              properties:
+                apiVersion:
+                  type: string
+                resource:
+                  type: string
+                revisionHistory:
+                  type: object
+                  properties:
+                    fieldPaths:
+                      type: array
+                      items:
+                        type: string
+            childResources:
+              type: array
+              items:
+                type: object
+                properties:
+                  apiVersion:
+                    type: string
+                  resource:
+                    type: string
+                  updateStrategy:
+                    type: object
+                    properties:
+                      method:
+                        type: string
+                      statusChecks:
+                        type: object
+                        properties:
+                          conditions:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                status:
+                                  type: string
+                                reason:
+                                  type: string
+            resyncPeriodSeconds:
+              type: integer
+            generateSelector:
+              type: boolean
+            hooks:
+              type: object
+              properties:
+                sync:
+                  type: object
+                  properties:
+                    webhook:
+                      $ref: "#/definitions/Hook"
+                finalize:
+                  type: object
+                  properties:
+                    webhook:
+                      $ref: "#/definitions/Hook"

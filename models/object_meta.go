@@ -23,58 +23,27 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
 )
 
-// KubernetesEventSourceSpec kubernetes event source spec
-// swagger:model KubernetesEventSourceSpec
-type KubernetesEventSourceSpec struct {
+// ObjectMeta object meta
+// swagger:model ObjectMeta
+type ObjectMeta struct {
+
+	// name
+	Name string `json:"name,omitempty"`
 
 	// namespace
 	Namespace string `json:"namespace,omitempty"`
-
-	// service account name
-	ServiceAccountName string `json:"serviceAccountName,omitempty"`
-
-	// sink
-	Sink *ObjectReference `json:"sink,omitempty"`
 }
 
-// Validate validates this kubernetes event source spec
-func (m *KubernetesEventSourceSpec) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateSink(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *KubernetesEventSourceSpec) validateSink(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Sink) { // not required
-		return nil
-	}
-
-	if m.Sink != nil {
-		if err := m.Sink.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("sink")
-			}
-			return err
-		}
-	}
-
+// Validate validates this object meta
+func (m *ObjectMeta) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *KubernetesEventSourceSpec) MarshalBinary() ([]byte, error) {
+func (m *ObjectMeta) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -82,8 +51,8 @@ func (m *KubernetesEventSourceSpec) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *KubernetesEventSourceSpec) UnmarshalBinary(b []byte) error {
-	var res KubernetesEventSourceSpec
+func (m *ObjectMeta) UnmarshalBinary(b []byte) error {
+	var res ObjectMeta
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

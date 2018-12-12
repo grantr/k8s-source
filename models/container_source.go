@@ -30,47 +30,47 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// KubernetesEventSource kubernetes event source
-// swagger:model KubernetesEventSource
-type KubernetesEventSource struct {
+// ContainerSource container source
+// swagger:model ContainerSource
+type ContainerSource struct {
 	apiVersionField string
 
 	metadataField *ObjectMeta
 
 	// spec
-	Spec *KubernetesEventSourceSpec `json:"spec,omitempty"`
+	Spec *ContainerSourceSpec `json:"spec,omitempty"`
 
 	// status
-	Status *KubernetesEventSourceStatus `json:"status,omitempty"`
+	Status *ContainerSourceStatus `json:"status,omitempty"`
 }
 
 // APIVersion gets the api version of this subtype
-func (m *KubernetesEventSource) APIVersion() string {
+func (m *ContainerSource) APIVersion() string {
 	return m.apiVersionField
 }
 
 // SetAPIVersion sets the api version of this subtype
-func (m *KubernetesEventSource) SetAPIVersion(val string) {
+func (m *ContainerSource) SetAPIVersion(val string) {
 	m.apiVersionField = val
 }
 
 // Kind gets the kind of this subtype
-func (m *KubernetesEventSource) Kind() string {
-	return "KubernetesEventSource"
+func (m *ContainerSource) Kind() string {
+	return "ContainerSource"
 }
 
 // SetKind sets the kind of this subtype
-func (m *KubernetesEventSource) SetKind(val string) {
+func (m *ContainerSource) SetKind(val string) {
 
 }
 
 // Metadata gets the metadata of this subtype
-func (m *KubernetesEventSource) Metadata() *ObjectMeta {
+func (m *ContainerSource) Metadata() *ObjectMeta {
 	return m.metadataField
 }
 
 // SetMetadata sets the metadata of this subtype
-func (m *KubernetesEventSource) SetMetadata(val *ObjectMeta) {
+func (m *ContainerSource) SetMetadata(val *ObjectMeta) {
 	m.metadataField = val
 }
 
@@ -79,14 +79,14 @@ func (m *KubernetesEventSource) SetMetadata(val *ObjectMeta) {
 // Status gets the status of this subtype
 
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
-func (m *KubernetesEventSource) UnmarshalJSON(raw []byte) error {
+func (m *ContainerSource) UnmarshalJSON(raw []byte) error {
 	var data struct {
 
 		// spec
-		Spec *KubernetesEventSourceSpec `json:"spec,omitempty"`
+		Spec *ContainerSourceSpec `json:"spec,omitempty"`
 
 		// status
-		Status *KubernetesEventSourceStatus `json:"status,omitempty"`
+		Status *ContainerSourceStatus `json:"status,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -113,7 +113,7 @@ func (m *KubernetesEventSource) UnmarshalJSON(raw []byte) error {
 		return err
 	}
 
-	var result KubernetesEventSource
+	var result ContainerSource
 
 	result.apiVersionField = base.APIVersion
 
@@ -134,16 +134,16 @@ func (m *KubernetesEventSource) UnmarshalJSON(raw []byte) error {
 }
 
 // MarshalJSON marshals this object with a polymorphic type to a JSON structure
-func (m KubernetesEventSource) MarshalJSON() ([]byte, error) {
+func (m ContainerSource) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
 
 		// spec
-		Spec *KubernetesEventSourceSpec `json:"spec,omitempty"`
+		Spec *ContainerSourceSpec `json:"spec,omitempty"`
 
 		// status
-		Status *KubernetesEventSourceStatus `json:"status,omitempty"`
+		Status *ContainerSourceStatus `json:"status,omitempty"`
 	}{
 
 		Spec: m.Spec,
@@ -176,8 +176,8 @@ func (m KubernetesEventSource) MarshalJSON() ([]byte, error) {
 	return swag.ConcatJSON(b1, b2, b3), nil
 }
 
-// Validate validates this kubernetes event source
-func (m *KubernetesEventSource) Validate(formats strfmt.Registry) error {
+// Validate validates this container source
+func (m *ContainerSource) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateMetadata(formats); err != nil {
@@ -198,7 +198,7 @@ func (m *KubernetesEventSource) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *KubernetesEventSource) validateMetadata(formats strfmt.Registry) error {
+func (m *ContainerSource) validateMetadata(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Metadata()) { // not required
 		return nil
@@ -216,7 +216,7 @@ func (m *KubernetesEventSource) validateMetadata(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *KubernetesEventSource) validateSpec(formats strfmt.Registry) error {
+func (m *ContainerSource) validateSpec(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Spec) { // not required
 		return nil
@@ -234,7 +234,7 @@ func (m *KubernetesEventSource) validateSpec(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *KubernetesEventSource) validateStatus(formats strfmt.Registry) error {
+func (m *ContainerSource) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Status) { // not required
 		return nil
@@ -253,7 +253,7 @@ func (m *KubernetesEventSource) validateStatus(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *KubernetesEventSource) MarshalBinary() ([]byte, error) {
+func (m *ContainerSource) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -261,8 +261,8 @@ func (m *KubernetesEventSource) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *KubernetesEventSource) UnmarshalBinary(b []byte) error {
-	var res KubernetesEventSource
+func (m *ContainerSource) UnmarshalBinary(b []byte) error {
+	var res ContainerSource
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

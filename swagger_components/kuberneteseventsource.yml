@@ -1,0 +1,28 @@
+definitions:
+  KubernetesEventSource:
+    type: object
+    allOf:
+    - $ref: "#/definitions/Object"
+    - properties:
+        spec:
+          $ref: "#/definitions/KubernetesEventSourceSpec"
+        status:
+          $ref: "#/definitions/KubernetesEventSourceStatus"
+  KubernetesEventSourceSpec:
+    type: object
+    properties:
+      namespace:
+        type: string
+      serviceAccountName:
+        type: string
+      sink:
+        $ref: "#/definitions/ObjectReference"
+  KubernetesEventSourceStatus:
+    type: object
+    properties:
+      conditions:
+        type: array
+        items:
+          $ref: "#/definitions/Condition"
+      sinkURI:
+        type: string

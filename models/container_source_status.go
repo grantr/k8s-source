@@ -29,9 +29,9 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// KubernetesEventSourceStatus kubernetes event source status
-// swagger:model KubernetesEventSourceStatus
-type KubernetesEventSourceStatus struct {
+// ContainerSourceStatus container source status
+// swagger:model ContainerSourceStatus
+type ContainerSourceStatus struct {
 
 	// conditions
 	Conditions []*Condition `json:"conditions"`
@@ -40,8 +40,8 @@ type KubernetesEventSourceStatus struct {
 	SinkURI string `json:"sinkURI,omitempty"`
 }
 
-// Validate validates this kubernetes event source status
-func (m *KubernetesEventSourceStatus) Validate(formats strfmt.Registry) error {
+// Validate validates this container source status
+func (m *ContainerSourceStatus) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateConditions(formats); err != nil {
@@ -54,7 +54,7 @@ func (m *KubernetesEventSourceStatus) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *KubernetesEventSourceStatus) validateConditions(formats strfmt.Registry) error {
+func (m *ContainerSourceStatus) validateConditions(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Conditions) { // not required
 		return nil
@@ -80,7 +80,7 @@ func (m *KubernetesEventSourceStatus) validateConditions(formats strfmt.Registry
 }
 
 // MarshalBinary interface implementation
-func (m *KubernetesEventSourceStatus) MarshalBinary() ([]byte, error) {
+func (m *ContainerSourceStatus) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -88,8 +88,8 @@ func (m *KubernetesEventSourceStatus) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *KubernetesEventSourceStatus) UnmarshalBinary(b []byte) error {
-	var res KubernetesEventSourceStatus
+func (m *ContainerSourceStatus) UnmarshalBinary(b []byte) error {
+	var res ContainerSourceStatus
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

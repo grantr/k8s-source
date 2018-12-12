@@ -49,9 +49,11 @@ func configureAPI(api *operations.K8ssourceAPI) http.Handler {
 	api.JSONProducer = runtime.JSONProducer()
 
 	api.FinalizeHookHandler = operations.FinalizeHookHandlerFunc(func(params operations.FinalizeHookParams) middleware.Responder {
+		//TODO implement
 		return middleware.NotImplemented("operation .FinalizeHook has not yet been implemented")
 	})
 	api.SyncHookHandler = operations.SyncHookHandlerFunc(func(params operations.SyncHookParams) middleware.Responder {
+		//TODO implement
 		return middleware.NotImplemented("operation .SyncHook has not yet been implemented")
 	})
 

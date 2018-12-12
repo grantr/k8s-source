@@ -21,18 +21,26 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"strconv"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
 )
 
-// KubernetesEventSourceSpec kubernetes event source spec
-// swagger:model KubernetesEventSourceSpec
-type KubernetesEventSourceSpec struct {
+// ContainerSourceSpec container source spec
+// swagger:model ContainerSourceSpec
+type ContainerSourceSpec struct {
 
-	// namespace
-	Namespace string `json:"namespace,omitempty"`
+	// args
+	Args []string `json:"args"`
+
+	// env
+	Env []*EnvVar `json:"env"`
+
+	// image
+	Image string `json:"image,omitempty"`
 
 	// service account name
 	ServiceAccountName string `json:"serviceAccountName,omitempty"`
@@ -41,9 +49,13 @@ type KubernetesEventSourceSpec struct {
 	Sink *ObjectReference `json:"sink,omitempty"`
 }
 
-// Validate validates this kubernetes event source spec
-func (m *KubernetesEventSourceSpec) Validate(formats strfmt.Registry) error {
+// Validate validates this container source spec
+func (m *ContainerSourceSpec) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateEnv(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateSink(formats); err != nil {
 		res = append(res, err)
@@ -55,7 +67,32 @@ func (m *KubernetesEventSourceSpec) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *KubernetesEventSourceSpec) validateSink(formats strfmt.Registry) error {
+func (m *ContainerSourceSpec) validateEnv(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Env) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Env); i++ {
+		if swag.IsZero(m.Env[i]) { // not required
+			continue
+		}
+
+		if m.Env[i] != nil {
+			if err := m.Env[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("env" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (m *ContainerSourceSpec) validateSink(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Sink) { // not required
 		return nil
@@ -74,7 +111,7 @@ func (m *KubernetesEventSourceSpec) validateSink(formats strfmt.Registry) error 
 }
 
 // MarshalBinary interface implementation
-func (m *KubernetesEventSourceSpec) MarshalBinary() ([]byte, error) {
+func (m *ContainerSourceSpec) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -82,8 +119,8 @@ func (m *KubernetesEventSourceSpec) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *KubernetesEventSourceSpec) UnmarshalBinary(b []byte) error {
-	var res KubernetesEventSourceSpec
+func (m *ContainerSourceSpec) UnmarshalBinary(b []byte) error {
+	var res ContainerSourceSpec
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
