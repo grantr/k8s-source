@@ -1,3 +1,7 @@
+[[override]]
+  name = "k8s.io/apimachinery"
+  version = "kubernetes-1.11.2"
+
 [[constraint]]
   name = "github.com/go-openapi/errors"
   version = "0.17.2"
@@ -37,3 +41,4 @@
 [prune]
   go-tests = true
   unused-packages = true
+  non-go = true
