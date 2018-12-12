@@ -30,8 +30,9 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
-	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // Object object
@@ -48,8 +49,8 @@ type Object interface {
 	SetKind(string)
 
 	// metadata
-	Metadata() *ObjectMeta
-	SetMetadata(*ObjectMeta)
+	Metadata() metav1.ObjectMeta
+	SetMetadata(metav1.ObjectMeta)
 }
 
 type object struct {
@@ -57,7 +58,7 @@ type object struct {
 
 	kindField string
 
-	metadataField *ObjectMeta
+	metadataField metav1.ObjectMeta
 }
 
 // APIVersion gets the api version of this polymorphic type
@@ -81,12 +82,12 @@ func (m *object) SetKind(val string) {
 }
 
 // Metadata gets the metadata of this polymorphic type
-func (m *object) Metadata() *ObjectMeta {
+func (m *object) Metadata() metav1.ObjectMeta {
 	return m.metadataField
 }
 
 // SetMetadata sets the metadata of this polymorphic type
-func (m *object) SetMetadata(val *ObjectMeta) {
+func (m *object) SetMetadata(val metav1.ObjectMeta) {
 	m.metadataField = val
 }
 
@@ -136,20 +137,6 @@ func unmarshalObject(data []byte, consumer runtime.Consumer) (Object, error) {
 
 	// The value of kind is used to determine which type to create and unmarshal the data into
 	switch getType.Kind {
-	case "CompositeController":
-		var result CompositeController
-		if err := consumer.Consume(buf2, &result); err != nil {
-			return nil, err
-		}
-		return &result, nil
-
-	case "ContainerSource":
-		var result ContainerSource
-		if err := consumer.Consume(buf2, &result); err != nil {
-			return nil, err
-		}
-		return &result, nil
-
 	case "KubernetesEventSource":
 		var result KubernetesEventSource
 		if err := consumer.Consume(buf2, &result); err != nil {
@@ -171,32 +158,5 @@ func unmarshalObject(data []byte, consumer runtime.Consumer) (Object, error) {
 
 // Validate validates this object
 func (m *object) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateMetadata(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *object) validateMetadata(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Metadata()) { // not required
-		return nil
-	}
-
-	if m.Metadata() != nil {
-		if err := m.Metadata().Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("metadata")
-			}
-			return err
-		}
-	}
-
 	return nil
 }

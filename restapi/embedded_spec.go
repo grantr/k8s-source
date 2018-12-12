@@ -174,113 +174,13 @@ func init() {
   "definitions": {
     "CompositeController": {
       "type": "object",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Object"
+      "x-go-type": {
+        "import": {
+          "alias": "mcv1alpha1",
+          "package": "metacontroller.app/apis/metacontroller/v1alpha1"
         },
-        {
-          "properties": {
-            "spec": {
-              "type": "object",
-              "properties": {
-                "childResources": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "apiVersion": {
-                        "type": "string"
-                      },
-                      "resource": {
-                        "type": "string"
-                      },
-                      "updateStrategy": {
-                        "type": "object",
-                        "properties": {
-                          "method": {
-                            "type": "string"
-                          },
-                          "statusChecks": {
-                            "type": "object",
-                            "properties": {
-                              "conditions": {
-                                "type": "array",
-                                "items": {
-                                  "type": "object",
-                                  "properties": {
-                                    "reason": {
-                                      "type": "string"
-                                    },
-                                    "status": {
-                                      "type": "string"
-                                    },
-                                    "type": {
-                                      "type": "string"
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "generateSelector": {
-                  "type": "boolean"
-                },
-                "hooks": {
-                  "type": "object",
-                  "properties": {
-                    "finalize": {
-                      "type": "object",
-                      "properties": {
-                        "webhook": {
-                          "$ref": "#/definitions/Hook"
-                        }
-                      }
-                    },
-                    "sync": {
-                      "type": "object",
-                      "properties": {
-                        "webhook": {
-                          "$ref": "#/definitions/Hook"
-                        }
-                      }
-                    }
-                  }
-                },
-                "parentResource": {
-                  "type": "object",
-                  "properties": {
-                    "apiVersion": {
-                      "type": "string"
-                    },
-                    "resource": {
-                      "type": "string"
-                    },
-                    "revisionHistory": {
-                      "type": "object",
-                      "properties": {
-                        "fieldPaths": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "resyncPeriodSeconds": {
-                  "type": "integer"
-                }
-              }
-            }
-          }
-        }
-      ]
+        "type": "CompositeController"
+      }
     },
     "Condition": {
       "type": "object",
@@ -301,102 +201,22 @@ func init() {
     },
     "ContainerSource": {
       "type": "object",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Object"
+      "x-go-type": {
+        "import": {
+          "alias": "sourcesv1alpha1",
+          "package": "github.com/knative/eventing-sources/pkg/apis/sources/v1alpha1"
         },
-        {
-          "properties": {
-            "spec": {
-              "$ref": "#/definitions/ContainerSourceSpec"
-            },
-            "status": {
-              "$ref": "#/definitions/ContainerSourceStatus"
-            }
-          }
-        }
-      ]
-    },
-    "ContainerSourceSpec": {
-      "type": "object",
-      "properties": {
-        "args": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "env": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/EnvVar"
-          }
-        },
-        "image": {
-          "type": "string"
-        },
-        "serviceAccountName": {
-          "type": "string"
-        },
-        "sink": {
-          "$ref": "#/definitions/ObjectReference"
-        }
+        "type": "ContainerSource"
       }
     },
-    "ContainerSourceStatus": {
+    "DecoratorController": {
       "type": "object",
-      "properties": {
-        "conditions": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Condition"
-          }
+      "x-go-type": {
+        "import": {
+          "alias": "mcv1alpha1",
+          "package": "metacontroller.app/apis/metacontroller/v1alpha1"
         },
-        "sinkURI": {
-          "type": "string"
-        }
-      }
-    },
-    "EnvVar": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "value": {
-          "type": "string"
-        }
-      }
-    },
-    "Hook": {
-      "type": "object",
-      "properties": {
-        "path": {
-          "type": "string"
-        },
-        "service": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "namespace": {
-              "type": "string"
-            },
-            "port": {
-              "type": "integer"
-            },
-            "protocol": {
-              "type": "string"
-            }
-          }
-        },
-        "timeout": {
-          "type": "string"
-        },
-        "url": {
-          "type": "string"
-        }
+        "type": "DecoratorController"
       }
     },
     "KubernetesEventSource": {
@@ -462,39 +282,22 @@ func init() {
     },
     "ObjectMeta": {
       "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
+      "x-go-type": {
+        "import": {
+          "alias": "metav1",
+          "package": "k8s.io/apimachinery/pkg/apis/meta/v1"
         },
-        "namespace": {
-          "type": "string"
-        }
+        "type": "ObjectMeta"
       }
     },
     "ObjectReference": {
       "type": "object",
-      "properties": {
-        "apiVersion": {
-          "type": "string"
+      "x-go-type": {
+        "import": {
+          "alias": "corev1",
+          "package": "k8s.io/api/core/v1"
         },
-        "fieldPath": {
-          "type": "string"
-        },
-        "kind": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "namespace": {
-          "type": "string"
-        },
-        "resourceVersion": {
-          "type": "string"
-        },
-        "uid": {
-          "type": "string"
-        }
+        "type": "ObjectReference"
       }
     }
   }
@@ -641,113 +444,13 @@ func init() {
   "definitions": {
     "CompositeController": {
       "type": "object",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Object"
+      "x-go-type": {
+        "import": {
+          "alias": "mcv1alpha1",
+          "package": "metacontroller.app/apis/metacontroller/v1alpha1"
         },
-        {
-          "properties": {
-            "spec": {
-              "type": "object",
-              "properties": {
-                "childResources": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "apiVersion": {
-                        "type": "string"
-                      },
-                      "resource": {
-                        "type": "string"
-                      },
-                      "updateStrategy": {
-                        "type": "object",
-                        "properties": {
-                          "method": {
-                            "type": "string"
-                          },
-                          "statusChecks": {
-                            "type": "object",
-                            "properties": {
-                              "conditions": {
-                                "type": "array",
-                                "items": {
-                                  "type": "object",
-                                  "properties": {
-                                    "reason": {
-                                      "type": "string"
-                                    },
-                                    "status": {
-                                      "type": "string"
-                                    },
-                                    "type": {
-                                      "type": "string"
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "generateSelector": {
-                  "type": "boolean"
-                },
-                "hooks": {
-                  "type": "object",
-                  "properties": {
-                    "finalize": {
-                      "type": "object",
-                      "properties": {
-                        "webhook": {
-                          "$ref": "#/definitions/Hook"
-                        }
-                      }
-                    },
-                    "sync": {
-                      "type": "object",
-                      "properties": {
-                        "webhook": {
-                          "$ref": "#/definitions/Hook"
-                        }
-                      }
-                    }
-                  }
-                },
-                "parentResource": {
-                  "type": "object",
-                  "properties": {
-                    "apiVersion": {
-                      "type": "string"
-                    },
-                    "resource": {
-                      "type": "string"
-                    },
-                    "revisionHistory": {
-                      "type": "object",
-                      "properties": {
-                        "fieldPaths": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "resyncPeriodSeconds": {
-                  "type": "integer"
-                }
-              }
-            }
-          }
-        }
-      ]
+        "type": "CompositeController"
+      }
     },
     "Condition": {
       "type": "object",
@@ -768,102 +471,22 @@ func init() {
     },
     "ContainerSource": {
       "type": "object",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Object"
+      "x-go-type": {
+        "import": {
+          "alias": "sourcesv1alpha1",
+          "package": "github.com/knative/eventing-sources/pkg/apis/sources/v1alpha1"
         },
-        {
-          "properties": {
-            "spec": {
-              "$ref": "#/definitions/ContainerSourceSpec"
-            },
-            "status": {
-              "$ref": "#/definitions/ContainerSourceStatus"
-            }
-          }
-        }
-      ]
-    },
-    "ContainerSourceSpec": {
-      "type": "object",
-      "properties": {
-        "args": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "env": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/EnvVar"
-          }
-        },
-        "image": {
-          "type": "string"
-        },
-        "serviceAccountName": {
-          "type": "string"
-        },
-        "sink": {
-          "$ref": "#/definitions/ObjectReference"
-        }
+        "type": "ContainerSource"
       }
     },
-    "ContainerSourceStatus": {
+    "DecoratorController": {
       "type": "object",
-      "properties": {
-        "conditions": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Condition"
-          }
+      "x-go-type": {
+        "import": {
+          "alias": "mcv1alpha1",
+          "package": "metacontroller.app/apis/metacontroller/v1alpha1"
         },
-        "sinkURI": {
-          "type": "string"
-        }
-      }
-    },
-    "EnvVar": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "value": {
-          "type": "string"
-        }
-      }
-    },
-    "Hook": {
-      "type": "object",
-      "properties": {
-        "path": {
-          "type": "string"
-        },
-        "service": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "namespace": {
-              "type": "string"
-            },
-            "port": {
-              "type": "integer"
-            },
-            "protocol": {
-              "type": "string"
-            }
-          }
-        },
-        "timeout": {
-          "type": "string"
-        },
-        "url": {
-          "type": "string"
-        }
+        "type": "DecoratorController"
       }
     },
     "KubernetesEventSource": {
@@ -929,39 +552,22 @@ func init() {
     },
     "ObjectMeta": {
       "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
+      "x-go-type": {
+        "import": {
+          "alias": "metav1",
+          "package": "k8s.io/apimachinery/pkg/apis/meta/v1"
         },
-        "namespace": {
-          "type": "string"
-        }
+        "type": "ObjectMeta"
       }
     },
     "ObjectReference": {
       "type": "object",
-      "properties": {
-        "apiVersion": {
-          "type": "string"
+      "x-go-type": {
+        "import": {
+          "alias": "corev1",
+          "package": "k8s.io/api/core/v1"
         },
-        "fieldPath": {
-          "type": "string"
-        },
-        "kind": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "namespace": {
-          "type": "string"
-        },
-        "resourceVersion": {
-          "type": "string"
-        },
-        "uid": {
-          "type": "string"
-        }
+        "type": "ObjectReference"
       }
     }
   }

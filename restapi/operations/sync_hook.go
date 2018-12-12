@@ -23,7 +23,6 @@ package operations
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	errors "github.com/go-openapi/errors"
 	middleware "github.com/go-openapi/runtime/middleware"
@@ -32,6 +31,8 @@ import (
 	validate "github.com/go-openapi/validate"
 
 	models "github.com/grantr/k8s-source/models"
+	sourcesv1alpha1 "github.com/knative/eventing-sources/pkg/apis/sources/v1alpha1"
+	mcv1alpha1 "metacontroller.app/apis/metacontroller/v1alpha1"
 )
 
 // SyncHookHandlerFunc turns a function with the right signature into a sync hook handler
@@ -85,10 +86,10 @@ func (o *SyncHook) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 type SyncHookBody struct {
 
 	// children
-	Children map[string]models.ContainerSource `json:"children,omitempty"`
+	Children map[string]sourcesv1alpha1.ContainerSource `json:"children,omitempty"`
 
 	// controller
-	Controller *models.CompositeController `json:"controller,omitempty"`
+	Controller mcv1alpha1.CompositeController `json:"controller,omitempty"`
 
 	// finalizing
 	// Required: true
@@ -103,14 +104,6 @@ type SyncHookBody struct {
 func (o *SyncHookBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateChildren(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateController(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := o.validateFinalizing(formats); err != nil {
 		res = append(res, err)
 	}
@@ -122,46 +115,6 @@ func (o *SyncHookBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *SyncHookBody) validateChildren(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Children) { // not required
-		return nil
-	}
-
-	for k := range o.Children {
-
-		if err := validate.Required("body"+"."+"children"+"."+k, "body", o.Children[k]); err != nil {
-			return err
-		}
-		if val, ok := o.Children[k]; ok {
-			if err := val.Validate(formats); err != nil {
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-func (o *SyncHookBody) validateController(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Controller) { // not required
-		return nil
-	}
-
-	if o.Controller != nil {
-		if err := o.Controller.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "controller")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -240,7 +193,7 @@ func (o *SyncHookBody) UnmarshalBinary(b []byte) error {
 type SyncHookOKBody struct {
 
 	// children
-	Children []*models.ContainerSource `json:"children"`
+	Children []sourcesv1alpha1.ContainerSource `json:"children"`
 
 	// status
 	Status *models.KubernetesEventSourceStatus `json:"status,omitempty"`
@@ -250,10 +203,6 @@ type SyncHookOKBody struct {
 func (o *SyncHookOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateChildren(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
@@ -261,31 +210,6 @@ func (o *SyncHookOKBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *SyncHookOKBody) validateChildren(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Children) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Children); i++ {
-		if swag.IsZero(o.Children[i]) { // not required
-			continue
-		}
-
-		if o.Children[i] != nil {
-			if err := o.Children[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("syncHookOK" + "." + "children" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 

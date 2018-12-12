@@ -89,71 +89,11 @@ paths:
 definitions:
   CompositeController:
     type: object
-    allOf:
-    - $ref: '#/definitions/Object'
-    - properties:
-        spec:
-          type: object
-          properties:
-            childResources:
-              type: array
-              items:
-                type: object
-                properties:
-                  apiVersion:
-                    type: string
-                  resource:
-                    type: string
-                  updateStrategy:
-                    type: object
-                    properties:
-                      method:
-                        type: string
-                      statusChecks:
-                        type: object
-                        properties:
-                          conditions:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                reason:
-                                  type: string
-                                status:
-                                  type: string
-                                type:
-                                  type: string
-            generateSelector:
-              type: boolean
-            hooks:
-              type: object
-              properties:
-                finalize:
-                  type: object
-                  properties:
-                    webhook:
-                      $ref: '#/definitions/Hook'
-                sync:
-                  type: object
-                  properties:
-                    webhook:
-                      $ref: '#/definitions/Hook'
-            parentResource:
-              type: object
-              properties:
-                apiVersion:
-                  type: string
-                resource:
-                  type: string
-                revisionHistory:
-                  type: object
-                  properties:
-                    fieldPaths:
-                      type: array
-                      items:
-                        type: string
-            resyncPeriodSeconds:
-              type: integer
+    x-go-type:
+      import:
+        alias: mcv1alpha1
+        package: metacontroller.app/apis/metacontroller/v1alpha1
+      type: CompositeController
   Condition:
     type: object
     properties:
@@ -167,66 +107,18 @@ definitions:
         type: string
   ContainerSource:
     type: object
-    allOf:
-    - $ref: '#/definitions/Object'
-    - properties:
-        spec:
-          $ref: '#/definitions/ContainerSourceSpec'
-        status:
-          $ref: '#/definitions/ContainerSourceStatus'
-  ContainerSourceSpec:
+    x-go-type:
+      import:
+        alias: sourcesv1alpha1
+        package: github.com/knative/eventing-sources/pkg/apis/sources/v1alpha1
+      type: ContainerSource
+  DecoratorController:
     type: object
-    properties:
-      args:
-        type: array
-        items:
-          type: string
-      env:
-        type: array
-        items:
-          $ref: '#/definitions/EnvVar'
-      image:
-        type: string
-      serviceAccountName:
-        type: string
-      sink:
-        $ref: '#/definitions/ObjectReference'
-  ContainerSourceStatus:
-    type: object
-    properties:
-      conditions:
-        type: array
-        items:
-          $ref: '#/definitions/Condition'
-      sinkURI:
-        type: string
-  EnvVar:
-    type: object
-    properties:
-      name:
-        type: string
-      value:
-        type: string
-  Hook:
-    type: object
-    properties:
-      path:
-        type: string
-      service:
-        type: object
-        properties:
-          name:
-            type: string
-          namespace:
-            type: string
-          port:
-            type: integer
-          protocol:
-            type: string
-      timeout:
-        type: string
-      url:
-        type: string
+    x-go-type:
+      import:
+        alias: mcv1alpha1
+        package: metacontroller.app/apis/metacontroller/v1alpha1
+      type: DecoratorController
   KubernetesEventSource:
     type: object
     allOf:
@@ -266,25 +158,15 @@ definitions:
     discriminator: kind
   ObjectMeta:
     type: object
-    properties:
-      name:
-        type: string
-      namespace:
-        type: string
+    x-go-type:
+      import:
+        alias: metav1
+        package: k8s.io/apimachinery/pkg/apis/meta/v1
+      type: ObjectMeta
   ObjectReference:
     type: object
-    properties:
-      apiVersion:
-        type: string
-      fieldPath:
-        type: string
-      kind:
-        type: string
-      name:
-        type: string
-      namespace:
-        type: string
-      resourceVersion:
-        type: string
-      uid:
-        type: string
+    x-go-type:
+      import:
+        alias: corev1
+        package: k8s.io/api/core/v1
+      type: ObjectReference

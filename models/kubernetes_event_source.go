@@ -28,6 +28,8 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // KubernetesEventSource kubernetes event source
@@ -35,7 +37,7 @@ import (
 type KubernetesEventSource struct {
 	apiVersionField string
 
-	metadataField *ObjectMeta
+	metadataField metav1.ObjectMeta
 
 	// spec
 	Spec *KubernetesEventSourceSpec `json:"spec,omitempty"`
@@ -65,12 +67,12 @@ func (m *KubernetesEventSource) SetKind(val string) {
 }
 
 // Metadata gets the metadata of this subtype
-func (m *KubernetesEventSource) Metadata() *ObjectMeta {
+func (m *KubernetesEventSource) Metadata() metav1.ObjectMeta {
 	return m.metadataField
 }
 
 // SetMetadata sets the metadata of this subtype
-func (m *KubernetesEventSource) SetMetadata(val *ObjectMeta) {
+func (m *KubernetesEventSource) SetMetadata(val metav1.ObjectMeta) {
 	m.metadataField = val
 }
 
@@ -103,7 +105,7 @@ func (m *KubernetesEventSource) UnmarshalJSON(raw []byte) error {
 
 		Kind string `json:"kind,omitempty"`
 
-		Metadata *ObjectMeta `json:"metadata,omitempty"`
+		Metadata metav1.ObjectMeta `json:"metadata,omitempty"`
 	}
 	buf = bytes.NewBuffer(raw)
 	dec = json.NewDecoder(buf)
@@ -159,7 +161,7 @@ func (m KubernetesEventSource) MarshalJSON() ([]byte, error) {
 
 		Kind string `json:"kind,omitempty"`
 
-		Metadata *ObjectMeta `json:"metadata,omitempty"`
+		Metadata metav1.ObjectMeta `json:"metadata,omitempty"`
 	}{
 
 		APIVersion: m.APIVersion(),
@@ -180,10 +182,6 @@ func (m KubernetesEventSource) MarshalJSON() ([]byte, error) {
 func (m *KubernetesEventSource) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateMetadata(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateSpec(formats); err != nil {
 		res = append(res, err)
 	}
@@ -195,24 +193,6 @@ func (m *KubernetesEventSource) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *KubernetesEventSource) validateMetadata(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Metadata()) { // not required
-		return nil
-	}
-
-	if m.Metadata() != nil {
-		if err := m.Metadata().Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("metadata")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 

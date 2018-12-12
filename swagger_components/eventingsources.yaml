@@ -1,0 +1,8 @@
+definitions:
+  ContainerSource:
+    type: object
+    x-go-type:
+      import:
+        package: "github.com/knative/eventing-sources/pkg/apis/sources/v1alpha1"
+        alias: "sourcesv1alpha1"
+      type: "ContainerSource"

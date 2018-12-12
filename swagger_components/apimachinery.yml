@@ -1,14 +1,29 @@
 definitions:
   ObjectMeta:
     type: object
-    properties:
-      name:
-        type: string
-      namespace:
-        type: string
+    x-go-type:
+      import:
+        package: "k8s.io/apimachinery/pkg/apis/meta/v1"
+        alias: "metav1"
+      type: "ObjectMeta"
+  # TypeMeta:
+  #   type: object
+  #   x-go-type:
+  #     import:
+  #       package: "k8s.io/apimachinery/pkg/apis/meta/v1"
+  #       alias: "metav1"
+  #     type: "TypeMeta"
+  #   properties:
+  #     apiVersion:
+  #       type: string
   Object:
     type: object
     discriminator: kind
+    # allOf:
+    # - $ref: "#/definitions/TypeMeta"
+    # - properties:
+    #     metadata:
+    #       $ref: "#/definitions/ObjectMeta"
     properties:
       apiVersion:
         type: string
@@ -29,26 +44,8 @@ definitions:
         type: string
   ObjectReference:
     type: object
-    properties:
-      kind:
-        type: string
-      namespace:
-        type: string
-      name:
-        type: string
-      uid:
-        type: string
-      apiVersion:
-        type: string
-      resourceVersion:
-        type: string
-      fieldPath:
-        type: string
-  EnvVar:
-    type: object
-    properties:
-      name:
-        type: string
-      value:
-        type: string
-      #valueFrom:
+    x-go-type:
+      import:
+        package: "k8s.io/api/core/v1"
+        alias: "corev1"
+      type: "ObjectReference"

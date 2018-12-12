@@ -23,8 +23,9 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
+
+	corev1 "k8s.io/api/core/v1"
 )
 
 // KubernetesEventSourceSpec kubernetes event source spec
@@ -38,38 +39,11 @@ type KubernetesEventSourceSpec struct {
 	ServiceAccountName string `json:"serviceAccountName,omitempty"`
 
 	// sink
-	Sink *ObjectReference `json:"sink,omitempty"`
+	Sink corev1.ObjectReference `json:"sink,omitempty"`
 }
 
 // Validate validates this kubernetes event source spec
 func (m *KubernetesEventSourceSpec) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateSink(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *KubernetesEventSourceSpec) validateSink(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Sink) { // not required
-		return nil
-	}
-
-	if m.Sink != nil {
-		if err := m.Sink.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("sink")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
