@@ -86,7 +86,7 @@ func (o *FinalizeHook) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 type FinalizeHookBody struct {
 
 	// children
-	Children map[string]sourcesv1alpha1.ContainerSource `json:"children,omitempty"`
+	Children map[string]map[string]sourcesv1alpha1.ContainerSource `json:"children,omitempty"`
 
 	// controller
 	Controller mcv1alpha1.CompositeController `json:"controller,omitempty"`

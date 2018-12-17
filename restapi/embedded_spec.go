@@ -65,7 +65,10 @@ func init() {
                 "children": {
                   "type": "object",
                   "additionalProperties": {
-                    "$ref": "#/definitions/ContainerSource"
+                    "type": "object",
+                    "additionalProperties": {
+                      "$ref": "#/definitions/ContainerSource"
+                    }
                   }
                 },
                 "controller": {
@@ -127,7 +130,10 @@ func init() {
                 "children": {
                   "type": "object",
                   "additionalProperties": {
-                    "$ref": "#/definitions/ContainerSource"
+                    "type": "object",
+                    "additionalProperties": {
+                      "$ref": "#/definitions/ContainerSource"
+                    }
                   }
                 },
                 "controller": {
@@ -335,7 +341,10 @@ func init() {
                 "children": {
                   "type": "object",
                   "additionalProperties": {
-                    "$ref": "#/definitions/ContainerSource"
+                    "type": "object",
+                    "additionalProperties": {
+                      "$ref": "#/definitions/ContainerSource"
+                    }
                   }
                 },
                 "controller": {
@@ -397,7 +406,10 @@ func init() {
                 "children": {
                   "type": "object",
                   "additionalProperties": {
-                    "$ref": "#/definitions/ContainerSource"
+                    "type": "object",
+                    "additionalProperties": {
+                      "$ref": "#/definitions/ContainerSource"
+                    }
                   }
                 },
                 "controller": {

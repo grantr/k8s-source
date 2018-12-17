@@ -3,6 +3,7 @@ definitions:
     type: object
     allOf:
     - $ref: "#/definitions/Object"
+    # - $ref: "#/definitions/ObjectMeta"
     - properties:
         spec:
           $ref: "#/definitions/KubernetesEventSourceSpec"

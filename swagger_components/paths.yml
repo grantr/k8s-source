@@ -17,7 +17,9 @@ paths:
             children:
               type: object
               additionalProperties:
-                $ref: "#/definitions/ContainerSource"
+                type: object
+                additionalProperties:
+                  $ref: "#/definitions/ContainerSource"
             finalizing:
               type: boolean
               enum: [false]
@@ -54,7 +56,9 @@ paths:
             children:
               type: object
               additionalProperties:
-                $ref: "#/definitions/ContainerSource"
+                type: object
+                additionalProperties:
+                  $ref: "#/definitions/ContainerSource"
             finalizing:
               type: boolean
               enum: [true]

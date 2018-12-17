@@ -24,7 +24,9 @@ paths:
             children:
               type: object
               additionalProperties:
-                $ref: '#/definitions/ContainerSource'
+                type: object
+                additionalProperties:
+                  $ref: '#/definitions/ContainerSource'
             controller:
               $ref: '#/definitions/CompositeController'
             finalizing:
@@ -63,7 +65,9 @@ paths:
             children:
               type: object
               additionalProperties:
-                $ref: '#/definitions/ContainerSource'
+                type: object
+                additionalProperties:
+                  $ref: '#/definitions/ContainerSource'
             controller:
               $ref: '#/definitions/CompositeController'
             finalizing:
