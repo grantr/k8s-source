@@ -19,6 +19,7 @@ package restapi
 
 import (
 	"crypto/tls"
+	"log"
 	"net/http"
 
 	errors "github.com/go-openapi/errors"
@@ -49,12 +50,42 @@ func configureAPI(api *operations.K8ssourceAPI) http.Handler {
 	api.JSONProducer = runtime.JSONProducer()
 
 	api.FinalizeHookHandler = operations.FinalizeHookHandlerFunc(func(params operations.FinalizeHookParams) middleware.Responder {
-		//TODO implement
 		return middleware.NotImplemented("operation .FinalizeHook has not yet been implemented")
 	})
+
 	api.SyncHookHandler = operations.SyncHookHandlerFunc(func(params operations.SyncHookParams) middleware.Responder {
-		//TODO implement
-		return middleware.NotImplemented("operation .SyncHook has not yet been implemented")
+		log.Printf("request controller: %#v", params.Body.Controller)
+		log.Printf("request finalizing: %#v", params.Body.Finalizing)
+		log.Printf("request parent: %#v", params.Body.Parent)
+		log.Printf("request children: %#v", params.Body.Children)
+		m, err := (&operations.SyncHookOKBody{}).MarshalBinary()
+		if err != nil {
+			panic(err)
+		}
+		log.Printf("response: %s", string(m))
+		return operations.NewSyncHookOK().WithPayload(&operations.SyncHookOKBody{})
+
+		containersources := params.Body.Children["ContainerSource.sources.knative.dev/v1alpha1"]
+		parent := params.Body.Parent
+
+		// Initialize conditions: maybe better to use libraries?
+		// Is there a child containersource?
+		if len(containersources) == 0 {
+
+			// if not, create one
+
+		} else {
+			// if yes, make sure its spec is correct
+			//TODO get first child
+			//parent.Status.Conditions = child.Status.Conditions
+			//parent.Status.Conditions
+			// if yes, copy containerspec status to parent
+		}
+		payload := &operations.SyncHookOKBody{
+			Status:   parent.Status,
+			Children: params.Body.Children,
+		}
+		return &operations.SyncHookOK{Payload: payload}
 	})
 
 	api.ServerShutdown = func() {}
