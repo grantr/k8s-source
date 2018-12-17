@@ -1,0 +1,19 @@
+apiVersion: metacontroller.k8s.io/v1alpha1
+kind: CompositeController
+metadata:
+  name: k8s-source
+spec:
+  parentResource:
+    apiVersion: sources.eventing.knative.dev/v1alpha1
+    resource: kuberneteseventsources
+  childResources:
+  - apiVersion: sources.eventing.knative.dev/v1alpha1
+    resource: containersources
+    updateStrategy:
+      method: InPlace
+  generateSelector: true
+  hooks:
+    sync:
+      webhook:
+        url: http://k8s-sources-controller.knative-sources/sync
+        timeout: 15s
