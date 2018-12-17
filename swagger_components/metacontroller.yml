@@ -1,0 +1,15 @@
+definitions:
+  CompositeController:
+    type: object
+    x-go-type:
+      import:
+        package: "metacontroller.app/apis/metacontroller/v1alpha1"
+        alias: "mcv1alpha1"
+      type: "CompositeController"
+  DecoratorController:
+    type: object
+    x-go-type:
+      import:
+        package: "metacontroller.app/apis/metacontroller/v1alpha1"
+        alias: "mcv1alpha1"
+      type: "DecoratorController"

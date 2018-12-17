@@ -63,10 +63,16 @@ func init() {
               ],
               "properties": {
                 "children": {
-                  "type": "object"
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "$ref": "#/definitions/ContainerSource"
+                    }
+                  }
                 },
                 "controller": {
-                  "type": "object"
+                  "$ref": "#/definitions/CompositeController"
                 },
                 "finalizing": {
                   "type": "boolean",
@@ -75,7 +81,7 @@ func init() {
                   ]
                 },
                 "parent": {
-                  "type": "object"
+                  "$ref": "#/definitions/KubernetesEventSource"
                 }
               }
             }
@@ -90,14 +96,14 @@ func init() {
                 "children": {
                   "type": "array",
                   "items": {
-                    "type": "object"
+                    "$ref": "#/definitions/ContainerSource"
                   }
                 },
                 "finalized": {
                   "type": "boolean"
                 },
                 "status": {
-                  "type": "object"
+                  "$ref": "#/definitions/KubernetesEventSourceStatus"
                 }
               }
             }
@@ -122,10 +128,16 @@ func init() {
               ],
               "properties": {
                 "children": {
-                  "type": "object"
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "$ref": "#/definitions/ContainerSource"
+                    }
+                  }
                 },
                 "controller": {
-                  "type": "object"
+                  "$ref": "#/definitions/CompositeController"
                 },
                 "finalizing": {
                   "type": "boolean",
@@ -134,7 +146,7 @@ func init() {
                   ]
                 },
                 "parent": {
-                  "type": "object"
+                  "$ref": "#/definitions/KubernetesEventSource"
                 }
               }
             }
@@ -149,11 +161,11 @@ func init() {
                 "children": {
                   "type": "array",
                   "items": {
-                    "type": "object"
+                    "$ref": "#/definitions/ContainerSource"
                   }
                 },
                 "status": {
-                  "type": "object"
+                  "$ref": "#/definitions/KubernetesEventSourceStatus"
                 }
               }
             }
@@ -162,6 +174,136 @@ func init() {
             "description": "error"
           }
         }
+      }
+    }
+  },
+  "definitions": {
+    "CompositeController": {
+      "type": "object",
+      "x-go-type": {
+        "import": {
+          "alias": "mcv1alpha1",
+          "package": "metacontroller.app/apis/metacontroller/v1alpha1"
+        },
+        "type": "CompositeController"
+      }
+    },
+    "Condition": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "ContainerSource": {
+      "type": "object",
+      "x-go-type": {
+        "import": {
+          "alias": "sourcesv1alpha1",
+          "package": "github.com/knative/eventing-sources/pkg/apis/sources/v1alpha1"
+        },
+        "type": "ContainerSource"
+      }
+    },
+    "DecoratorController": {
+      "type": "object",
+      "x-go-type": {
+        "import": {
+          "alias": "mcv1alpha1",
+          "package": "metacontroller.app/apis/metacontroller/v1alpha1"
+        },
+        "type": "DecoratorController"
+      }
+    },
+    "KubernetesEventSource": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Object"
+        },
+        {
+          "properties": {
+            "spec": {
+              "$ref": "#/definitions/KubernetesEventSourceSpec"
+            },
+            "status": {
+              "$ref": "#/definitions/KubernetesEventSourceStatus"
+            }
+          }
+        }
+      ]
+    },
+    "KubernetesEventSourceSpec": {
+      "type": "object",
+      "properties": {
+        "namespace": {
+          "type": "string"
+        },
+        "serviceAccountName": {
+          "type": "string"
+        },
+        "sink": {
+          "$ref": "#/definitions/ObjectReference"
+        }
+      }
+    },
+    "KubernetesEventSourceStatus": {
+      "type": "object",
+      "properties": {
+        "conditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Condition"
+          }
+        },
+        "sinkURI": {
+          "type": "string"
+        }
+      }
+    },
+    "Object": {
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/definitions/ObjectMeta"
+        }
+      },
+      "discriminator": "kind"
+    },
+    "ObjectMeta": {
+      "type": "object",
+      "x-go-type": {
+        "import": {
+          "alias": "metav1",
+          "package": "k8s.io/apimachinery/pkg/apis/meta/v1"
+        },
+        "type": "ObjectMeta"
+      }
+    },
+    "ObjectReference": {
+      "type": "object",
+      "x-go-type": {
+        "import": {
+          "alias": "corev1",
+          "package": "k8s.io/api/core/v1"
+        },
+        "type": "ObjectReference"
       }
     }
   }
@@ -197,10 +339,16 @@ func init() {
               ],
               "properties": {
                 "children": {
-                  "type": "object"
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "$ref": "#/definitions/ContainerSource"
+                    }
+                  }
                 },
                 "controller": {
-                  "type": "object"
+                  "$ref": "#/definitions/CompositeController"
                 },
                 "finalizing": {
                   "type": "boolean",
@@ -209,7 +357,7 @@ func init() {
                   ]
                 },
                 "parent": {
-                  "type": "object"
+                  "$ref": "#/definitions/KubernetesEventSource"
                 }
               }
             }
@@ -224,14 +372,14 @@ func init() {
                 "children": {
                   "type": "array",
                   "items": {
-                    "type": "object"
+                    "$ref": "#/definitions/ContainerSource"
                   }
                 },
                 "finalized": {
                   "type": "boolean"
                 },
                 "status": {
-                  "type": "object"
+                  "$ref": "#/definitions/KubernetesEventSourceStatus"
                 }
               }
             }
@@ -256,10 +404,16 @@ func init() {
               ],
               "properties": {
                 "children": {
-                  "type": "object"
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "$ref": "#/definitions/ContainerSource"
+                    }
+                  }
                 },
                 "controller": {
-                  "type": "object"
+                  "$ref": "#/definitions/CompositeController"
                 },
                 "finalizing": {
                   "type": "boolean",
@@ -268,7 +422,7 @@ func init() {
                   ]
                 },
                 "parent": {
-                  "type": "object"
+                  "$ref": "#/definitions/KubernetesEventSource"
                 }
               }
             }
@@ -283,11 +437,11 @@ func init() {
                 "children": {
                   "type": "array",
                   "items": {
-                    "type": "object"
+                    "$ref": "#/definitions/ContainerSource"
                   }
                 },
                 "status": {
-                  "type": "object"
+                  "$ref": "#/definitions/KubernetesEventSourceStatus"
                 }
               }
             }
@@ -296,6 +450,136 @@ func init() {
             "description": "error"
           }
         }
+      }
+    }
+  },
+  "definitions": {
+    "CompositeController": {
+      "type": "object",
+      "x-go-type": {
+        "import": {
+          "alias": "mcv1alpha1",
+          "package": "metacontroller.app/apis/metacontroller/v1alpha1"
+        },
+        "type": "CompositeController"
+      }
+    },
+    "Condition": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "ContainerSource": {
+      "type": "object",
+      "x-go-type": {
+        "import": {
+          "alias": "sourcesv1alpha1",
+          "package": "github.com/knative/eventing-sources/pkg/apis/sources/v1alpha1"
+        },
+        "type": "ContainerSource"
+      }
+    },
+    "DecoratorController": {
+      "type": "object",
+      "x-go-type": {
+        "import": {
+          "alias": "mcv1alpha1",
+          "package": "metacontroller.app/apis/metacontroller/v1alpha1"
+        },
+        "type": "DecoratorController"
+      }
+    },
+    "KubernetesEventSource": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Object"
+        },
+        {
+          "properties": {
+            "spec": {
+              "$ref": "#/definitions/KubernetesEventSourceSpec"
+            },
+            "status": {
+              "$ref": "#/definitions/KubernetesEventSourceStatus"
+            }
+          }
+        }
+      ]
+    },
+    "KubernetesEventSourceSpec": {
+      "type": "object",
+      "properties": {
+        "namespace": {
+          "type": "string"
+        },
+        "serviceAccountName": {
+          "type": "string"
+        },
+        "sink": {
+          "$ref": "#/definitions/ObjectReference"
+        }
+      }
+    },
+    "KubernetesEventSourceStatus": {
+      "type": "object",
+      "properties": {
+        "conditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Condition"
+          }
+        },
+        "sinkURI": {
+          "type": "string"
+        }
+      }
+    },
+    "Object": {
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/definitions/ObjectMeta"
+        }
+      },
+      "discriminator": "kind"
+    },
+    "ObjectMeta": {
+      "type": "object",
+      "x-go-type": {
+        "import": {
+          "alias": "metav1",
+          "package": "k8s.io/apimachinery/pkg/apis/meta/v1"
+        },
+        "type": "ObjectMeta"
+      }
+    },
+    "ObjectReference": {
+      "type": "object",
+      "x-go-type": {
+        "import": {
+          "alias": "corev1",
+          "package": "k8s.io/api/core/v1"
+        },
+        "type": "ObjectReference"
       }
     }
   }

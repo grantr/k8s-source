@@ -1,92 +1,176 @@
 consumes:
 - application/json
-info:
-  description: Webhook API for building Kubernetes controllers
-  title: Metacontroller
-  version: 0.3.0
 produces:
 - application/json
 schemes:
 - http
 swagger: "2.0"
-
+info:
+  description: Webhook API for building Kubernetes controllers
+  title: Metacontroller
+  version: 0.3.0
 paths:
-  /sync:
-    post:
-      operationId: syncHook
-      parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
-          required:
-            - finalizing
-          properties:
-            controller:
-              type: object
-            parent:
-              type: object
-            children:
-              type: object
-            finalizing:
-              type: boolean
-              enum: [false]
-      responses:
-        200:
-          description: OK
-          schema:
-            type: object
-            properties:
-              status:
-                type: object
-              children:
-                type: array
-                items:
-                  type: object
-        default:
-          description: error
-
   /finalize:
     post:
       operationId: finalizeHook
       parameters:
-      - in: body
-        name: body
+      - name: body
+        in: body
         schema:
           type: object
           required:
-            - finalizing
+          - finalizing
           properties:
-            controller:
-              type: object
-            parent:
-              type: object
             children:
               type: object
+              additionalProperties:
+                type: object
+                additionalProperties:
+                  $ref: '#/definitions/ContainerSource'
+            controller:
+              $ref: '#/definitions/CompositeController'
             finalizing:
               type: boolean
-              enum: [true]
+              enum:
+              - true
+            parent:
+              $ref: '#/definitions/KubernetesEventSource'
       responses:
-        200:
+        "200":
           description: OK
           schema:
             type: object
             properties:
-              status:
-                type: object
               children:
                 type: array
                 items:
-                  type: object
+                  $ref: '#/definitions/ContainerSource'
               finalized:
                 type: boolean
+              status:
+                $ref: '#/definitions/KubernetesEventSourceStatus'
         default:
           description: error
-# TODO
-# definitions:
-#   controller:
-#     type: object
-#   parent:
-#     type: object
-#   child:
-#     type: object
+  /sync:
+    post:
+      operationId: syncHook
+      parameters:
+      - name: body
+        in: body
+        schema:
+          type: object
+          required:
+          - finalizing
+          properties:
+            children:
+              type: object
+              additionalProperties:
+                type: object
+                additionalProperties:
+                  $ref: '#/definitions/ContainerSource'
+            controller:
+              $ref: '#/definitions/CompositeController'
+            finalizing:
+              type: boolean
+              enum:
+              - false
+            parent:
+              $ref: '#/definitions/KubernetesEventSource'
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+            properties:
+              children:
+                type: array
+                items:
+                  $ref: '#/definitions/ContainerSource'
+              status:
+                $ref: '#/definitions/KubernetesEventSourceStatus'
+        default:
+          description: error
+definitions:
+  CompositeController:
+    type: object
+    x-go-type:
+      import:
+        alias: mcv1alpha1
+        package: metacontroller.app/apis/metacontroller/v1alpha1
+      type: CompositeController
+  Condition:
+    type: object
+    properties:
+      message:
+        type: string
+      reason:
+        type: string
+      status:
+        type: string
+      type:
+        type: string
+  ContainerSource:
+    type: object
+    x-go-type:
+      import:
+        alias: sourcesv1alpha1
+        package: github.com/knative/eventing-sources/pkg/apis/sources/v1alpha1
+      type: ContainerSource
+  DecoratorController:
+    type: object
+    x-go-type:
+      import:
+        alias: mcv1alpha1
+        package: metacontroller.app/apis/metacontroller/v1alpha1
+      type: DecoratorController
+  KubernetesEventSource:
+    type: object
+    allOf:
+    - $ref: '#/definitions/Object'
+    - properties:
+        spec:
+          $ref: '#/definitions/KubernetesEventSourceSpec'
+        status:
+          $ref: '#/definitions/KubernetesEventSourceStatus'
+  KubernetesEventSourceSpec:
+    type: object
+    properties:
+      namespace:
+        type: string
+      serviceAccountName:
+        type: string
+      sink:
+        $ref: '#/definitions/ObjectReference'
+  KubernetesEventSourceStatus:
+    type: object
+    properties:
+      conditions:
+        type: array
+        items:
+          $ref: '#/definitions/Condition'
+      sinkURI:
+        type: string
+  Object:
+    type: object
+    properties:
+      apiVersion:
+        type: string
+      kind:
+        type: string
+      metadata:
+        $ref: '#/definitions/ObjectMeta'
+    discriminator: kind
+  ObjectMeta:
+    type: object
+    x-go-type:
+      import:
+        alias: metav1
+        package: k8s.io/apimachinery/pkg/apis/meta/v1
+      type: ObjectMeta
+  ObjectReference:
+    type: object
+    x-go-type:
+      import:
+        alias: corev1
+        package: k8s.io/api/core/v1
+      type: ObjectReference

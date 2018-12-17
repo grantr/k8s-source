@@ -1,0 +1,80 @@
+paths:
+  /sync:
+    post:
+      operationId: syncHook
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          required:
+            - finalizing
+          properties:
+            controller:
+              $ref: "#/definitions/CompositeController"
+            parent:
+              $ref: "#/definitions/KubernetesEventSource"
+            children:
+              type: object
+              additionalProperties:
+                type: object
+                additionalProperties:
+                  $ref: "#/definitions/ContainerSource"
+            finalizing:
+              type: boolean
+              enum: [false]
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              status:
+                $ref: "#/definitions/KubernetesEventSourceStatus"
+              children:
+                type: array
+                items:
+                  $ref: "#/definitions/ContainerSource"
+        default:
+          description: error
+
+  /finalize:
+    post:
+      operationId: finalizeHook
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          required:
+            - finalizing
+          properties:
+            controller:
+              $ref: "#/definitions/CompositeController"
+            parent:
+              $ref: "#/definitions/KubernetesEventSource"
+            children:
+              type: object
+              additionalProperties:
+                type: object
+                additionalProperties:
+                  $ref: "#/definitions/ContainerSource"
+            finalizing:
+              type: boolean
+              enum: [true]
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              status:
+                $ref: '#/definitions/KubernetesEventSourceStatus'
+              children:
+                type: array
+                items:
+                  $ref: "#/definitions/ContainerSource"
+              finalized:
+                type: boolean
+        default:
+          description: error

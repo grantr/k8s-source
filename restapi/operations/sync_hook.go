@@ -29,6 +29,10 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 	swag "github.com/go-openapi/swag"
 	validate "github.com/go-openapi/validate"
+
+	models "github.com/grantr/k8s-source/models"
+	sourcesv1alpha1 "github.com/knative/eventing-sources/pkg/apis/sources/v1alpha1"
+	mcv1alpha1 "metacontroller.app/apis/metacontroller/v1alpha1"
 )
 
 // SyncHookHandlerFunc turns a function with the right signature into a sync hook handler
@@ -82,10 +86,10 @@ func (o *SyncHook) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 type SyncHookBody struct {
 
 	// children
-	Children interface{} `json:"children,omitempty"`
+	Children map[string]map[string]sourcesv1alpha1.ContainerSource `json:"children,omitempty"`
 
 	// controller
-	Controller interface{} `json:"controller,omitempty"`
+	Controller mcv1alpha1.CompositeController `json:"controller,omitempty"`
 
 	// finalizing
 	// Required: true
@@ -93,7 +97,7 @@ type SyncHookBody struct {
 	Finalizing *bool `json:"finalizing"`
 
 	// parent
-	Parent interface{} `json:"parent,omitempty"`
+	Parent *models.KubernetesEventSource `json:"parent,omitempty"`
 }
 
 // Validate validates this sync hook body
@@ -101,6 +105,10 @@ func (o *SyncHookBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateFinalizing(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateParent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -144,6 +152,24 @@ func (o *SyncHookBody) validateFinalizing(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *SyncHookBody) validateParent(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Parent) { // not required
+		return nil
+	}
+
+	if o.Parent != nil {
+		if err := o.Parent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "parent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *SyncHookBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -167,14 +193,41 @@ func (o *SyncHookBody) UnmarshalBinary(b []byte) error {
 type SyncHookOKBody struct {
 
 	// children
-	Children []interface{} `json:"children"`
+	Children []sourcesv1alpha1.ContainerSource `json:"children"`
 
 	// status
-	Status interface{} `json:"status,omitempty"`
+	Status *models.KubernetesEventSourceStatus `json:"status,omitempty"`
 }
 
 // Validate validates this sync hook o k body
 func (o *SyncHookOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *SyncHookOKBody) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	if o.Status != nil {
+		if err := o.Status.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("syncHookOK" + "." + "status")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

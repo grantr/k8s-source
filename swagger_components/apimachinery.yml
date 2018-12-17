@@ -1,0 +1,51 @@
+definitions:
+  ObjectMeta:
+    type: object
+    x-go-type:
+      import:
+        package: "k8s.io/apimachinery/pkg/apis/meta/v1"
+        alias: "metav1"
+      type: "ObjectMeta"
+  # TypeMeta:
+  #   type: object
+  #   x-go-type:
+  #     import:
+  #       package: "k8s.io/apimachinery/pkg/apis/meta/v1"
+  #       alias: "metav1"
+  #     type: "TypeMeta"
+  #   properties:
+  #     apiVersion:
+  #       type: string
+  Object:
+    type: object
+    discriminator: kind
+    # allOf:
+    # - $ref: "#/definitions/TypeMeta"
+    # - properties:
+    #     metadata:
+    #       $ref: "#/definitions/ObjectMeta"
+    properties:
+      apiVersion:
+        type: string
+      kind:
+        type: string
+      metadata:
+        $ref: "#/definitions/ObjectMeta"
+  Condition:
+    type: object
+    properties:
+      type:
+        type: string
+      status:
+        type: string
+      reason:
+        type: string
+      message:
+        type: string
+  ObjectReference:
+    type: object
+    x-go-type:
+      import:
+        package: "k8s.io/api/core/v1"
+        alias: "corev1"
+      type: "ObjectReference"

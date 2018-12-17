@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-sources-controller
+  namespace: knative-sources
+spec:
+  replicas: 1
+  selector:
+    matchLabels: &labels
+      app: k8s-sources-controller
+  template:
+    metadata:
+      labels: *labels
+    spec:
+      containers:
+        - name: controller
+          image: github.com/grantr/k8s-source/cmd/k8ssource-server
+          env:
+          - name: PORT
+            value: "80"
+          - name: HOST
+            value: 0.0.0.0
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-sources-controller
+  namespace: knative-sources
+spec:
+  selector:
+    app: k8s-sources-controller
+  ports:
+  - port: 80
+    protocol: TCP
